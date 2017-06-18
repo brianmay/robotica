@@ -28,7 +28,7 @@ test_requirements = [
 
 setup(
     name='robotica',
-    version='version='0.1.0'',
+    version='0.1.0',
     description="Robotic maid to scare innocent children",
     long_description=readme + '\n\n' + history,
     author="Brian May",
