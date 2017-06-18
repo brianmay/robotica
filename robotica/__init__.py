@@ -4,4 +4,4 @@
 
 __author__ = """Brian May"""
 __email__ = 'brian@linuxpenguins.xyz'
-__version__ = '0.1.0'
+__version__ = '__version__ = '0.1.0''
