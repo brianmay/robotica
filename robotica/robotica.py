@@ -24,7 +24,6 @@ class Tasks:
         await self._bulbs.flash_bedroom()
 
     async def eat_breakfast(self) -> None:
-        self._bulbs.turn_on_bedroom()
         await self.say('Time to eat breakfast.')
 
     async def clean_teeth(self) -> None:
