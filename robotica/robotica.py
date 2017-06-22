@@ -25,18 +25,22 @@ class Tasks:
 
     async def eat_breakfast(self) -> None:
         await self.say('Time to eat breakfast.')
+        await self._bulbs.flash_bedroom()
 
     async def clean_teeth(self) -> None:
         await self.say('It is time to clean your teeth.')
+        await self._bulbs.flash_bedroom()
 
     async def get_into_car(self) -> None:
         await self.say('It is time to get into the Tesla and fasten your seat belts ready for take off.')
+        await self._bulbs.flash_bedroom()
 
     async def go_to_bus(self) -> None:
         await self.say('It is time to take off for the school bus.')
 
     async def save_point(self) -> None:
         await self.say('It is time to go to your save point.')
+        await self._bulbs.flash_bedroom()
 
     async def save_game(self) -> None:
         await self.say('It is time to save the gave.')
@@ -46,12 +50,15 @@ class Tasks:
 
     async def pack_up(self) -> None:
         await self.say('It is time to pack up.')
+        await self._bulbs.flash_bedroom()
 
     async def make_lunch(self) -> None:
         await self.say('It is time to make lunch for tomorrow.')
+        await self._bulbs.flash_bedroom()
 
     async def set_the_table(self) -> None:
         await self.say('It is time to set the table.')
+        await self._bulbs.flash_bedroom()
 
     async def eat_tea(self) -> None:
         await self.say('It is time to eat tea.')
@@ -61,18 +68,22 @@ class Tasks:
 
     async def shower(self) -> None:
         await self.say('It is time to have a bath in the shower.')
+        await self._bulbs.flash_bedroom()
 
     async def slow_down(self) -> None:
         await self.say('It is time to get tired for bed.')
 
     async def read_in_bed(self) -> None:
         await self.say('It is time to clean your teeth in bed and read.')
+        await self._bulbs.flash_bedroom()
 
     async def talk_in_bed(self) -> None:
         await self.say('It is time to go to the toilet in bed and talk.')
+        await self._bulbs.flash_bedroom()
 
     async def sleep(self) -> None:
         await self.say('It is time to go to the toilet and sleep.')
+        await self._bulbs.flash_bedroom()
 
     def add_tasks_to_scheduler(self, scheduler: BaseScheduler):
         scheduler.add_job(self.wake_up, 'cron', hour="06", minute="30", day_of_week="0-4")

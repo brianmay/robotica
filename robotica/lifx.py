@@ -28,13 +28,17 @@ class Bulbs:
         bedroom_lights = filter(lambda b: b.group == 'Bedrooms', self.bulbs)
         for bulb in bedroom_lights:
             bulb.set_power(True)
+            bulb.set_color([58275, 0, 65365, 2500], duration=60000)
 
     async def flash_bedroom(self) -> None:
         bedroom_lights = list(filter(lambda b: b.group == 'Bedrooms', self.bulbs))
-        for i in range(5):
-            for bulb in bedroom_lights:
-                bulb.set_power(False)
-            await asyncio.sleep(0.5)
-            for bulb in bedroom_lights:
-                bulb.set_power(True)
-            await asyncio.sleep(0.5)
+        for bulb in bedroom_lights:
+            # transient, color, period,cycles,duty_cycle,waveform
+            bulb.set_waveform({
+                "color": [0, 0, 0, 3500],
+                "transient": 1,
+                "period": 100,
+                "cycles": 30,
+                "duty_cycle": 0,
+                "waveform": 0
+            })
