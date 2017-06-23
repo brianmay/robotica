@@ -17,14 +17,15 @@ from robotica.robotica import Tasks
 @click.option('--say_path', default="say", help='Path to say program.')
 def main(say_path):
     """Console script for robotica."""
-    bulbs = Bulbs()
+    loop = asyncio.get_event_loop()
+
+    bulbs = Bulbs(loop)
     tasks = Tasks(bulbs, say_path)
 
     scheduler = AsyncIOScheduler()
     tasks.add_tasks_to_scheduler(scheduler)
     scheduler.start()
 
-    loop = asyncio.get_event_loop()
     listener = loop.create_datagram_endpoint(
         partial(aiolifx.LifxDiscovery, loop, bulbs),
         local_addr=('0.0.0.0', aiolifx.aiolifx.UDP_BROADCAST_PORT))
