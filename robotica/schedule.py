@@ -57,10 +57,10 @@ class Schedule:
             action = entry['lights']['action']
             if 'group' in entry['lights']:
                 group = entry['lights']['group']
-                bulbs = self._bulbs.get_group(group)
+                bulbs = self._bulbs.get_by_group(group)
             elif 'label' in entry['lights']:
                 label = entry['lights']['label']
-                bulbs = self._bulbs.get_label(label)
+                bulbs = self._bulbs.get_by_label(label)
             if bulbs is not None:
                 logger.debug("About to '%s' lights %s", action, bulbs)
                 await getattr(bulbs, action)()

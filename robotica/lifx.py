@@ -34,12 +34,12 @@ class Bulbs:
                 break
             idx += 1
 
-    def get_group(self, group: str) -> 'Bulbs':
+    def get_by_group(self, group: str) -> 'Bulbs':
         result = Bulbs(self._loop)
         result.bulbs = list(filter(lambda b: b.group == group, self.bulbs))
         return result
 
-    def get_label(self, label: str) -> 'Bulbs':
+    def get_by_label(self, label: str) -> 'Bulbs':
         result = Bulbs(self._loop)
         result.bulbs = list(filter(lambda b: b.label == label, self.bulbs))
         return result
