@@ -1,0 +1,177 @@
+day:
+  school:
+    description: A school day
+    when:
+      days_of_week:
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+
+    schedule:
+
+      '06:30':
+        lights:
+          group: bedroom
+          action: wake_up
+        message:
+          text: Time to wake up.
+
+      '07:00':
+        message:
+          text: Time to wake up RIGHT NOW.
+
+      '07:10':
+        message:
+          text: Time to eat breakfast.
+
+      '07:20':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: Time to clean your teeth.
+
+      '07:25':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+
+      '07:30':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to take off for the school bus.
+
+  everyday:
+    description: Everyday
+
+    schedule:
+
+      '17:55':
+        message:
+          text: It is time to go to your save point.
+
+      '18:00':
+        message:
+          text: It is time to save the gave.
+
+      '18:05':
+        message:
+          text: It is time to turn off all electronic entertainment devices.
+
+      '18:10':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to pack up.
+
+      '18:20':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to make lunch for tomorrow.
+
+      '18:25':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to set the table.
+
+      '18:30':
+        message:
+          text: It is time to eat tea.
+
+      '19:45':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to get tired for bed and put on pajamas.
+
+      '20:00':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to clean your teeth in bed and read.
+
+      '20:15':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to go to the toilet in bed and talk.
+
+      '20:30':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to go to the toilet and sleep.
+
+  shower:
+    description: Have a shower day.
+    when:
+      days_of_week:
+      - Sunday
+
+    schedule:
+
+      '19:15':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to have a bath in the shower.
+
+  football:
+    description: Football day.
+    when:
+      days_of_week:
+      - Sunday
+
+    schedule:
+
+      '08:00':
+        lights:
+          group: bedroom
+          action: wake_up
+        message:
+          text: Time to wake up.
+
+      '08:30':
+        message:
+          text: Time to wake up RIGHT NOW.
+
+      '08:40':
+        message:
+          text: Time to eat breakfast.
+
+      '08:50':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: Time to clean your teeth.
+
+      '08:55':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+
+      '09:00':
+        lights:
+          group: bedroom
+          action: flash
+        message:
+          text: It is time to take off for football.
