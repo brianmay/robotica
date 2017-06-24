@@ -14,19 +14,19 @@ class Bulbs:
         self.bulbs = []  # type: List[aiolifx.aiolifx.Light]
 
     def register(self, bulb: aiolifx.aiolifx.Light) -> None:
-        logger.debug("register light %s", bulb.mac_addr)
+        logger.debug("Register light %s.", bulb.mac_addr)
         self._loop.create_task(self.async_register(bulb))
 
     async def async_register(self, bulb: aiolifx.aiolifx.Light) -> None:
         try:
             await bulb.get_metadata(loop=self._loop)
             self.bulbs.append(bulb)
-            logger.info("got light %s (%s)", bulb.mac_addr, bulb.label)
+            logger.info("Got light %s (%s).", bulb.mac_addr, bulb.label)
         except DeviceOffline:
             logger.error("Light is offline %s", bulb.mac_addr)
 
     def unregister(self, bulb: aiolifx.aiolifx.Light) -> None:
-        logger.info("unregister light %s (%s)", bulb.mac_addr, bulb.label)
+        logger.info("Unregister light %s (%s).", bulb.mac_addr, bulb.label)
         idx = 0
         for x in list([y.mac_addr for y in self.bulbs]):
             if x == bulb.mac_addr:
@@ -53,7 +53,7 @@ class Bulbs:
                 await bulb.set_power(True)
                 await bulb.set_color([58275, 0, 65365, 2500], duration=60000)
             except DeviceOffline:
-                logger.info("Light is offline %s (%s)", bulb.mac_addr, bulb.label)
+                logger.info("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
 
     async def flash(self) -> None:
         for bulb in self.bulbs:
@@ -68,7 +68,7 @@ class Bulbs:
                     "waveform": 0
                 })
             except DeviceOffline:
-                logger.info("Light is offline %s (%s)", bulb.mac_addr, bulb.label)
+                logger.info("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
 
     def __str__(self):
         return ", ".join([str(b.label) for b in self.bulbs])
