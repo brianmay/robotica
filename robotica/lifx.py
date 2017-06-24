@@ -3,7 +3,7 @@ import logging
 from typing import List
 
 import aiolifx
-
+from aiolifx.aiolifx import DeviceOffline
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,12 @@ class Bulbs:
         self._loop.create_task(self.async_register(bulb))
 
     async def async_register(self, bulb: aiolifx.aiolifx.Light) -> None:
-        await bulb.get_metadata(loop=self._loop)
-        self.bulbs.append(bulb)
-        logger.info("got light %s (%s)", bulb.mac_addr, bulb.label)
+        try:
+            await bulb.get_metadata(loop=self._loop)
+            self.bulbs.append(bulb)
+            logger.info("got light %s (%s)", bulb.mac_addr, bulb.label)
+        except DeviceOffline:
+            logger.error("Light is offline %s", bulb.mac_addr)
 
     def unregister(self, bulb: aiolifx.aiolifx.Light) -> None:
         logger.info("unregister light %s (%s)", bulb.mac_addr, bulb.label)
@@ -43,23 +46,29 @@ class Bulbs:
 
     async def wake_up(self) -> None:
         for bulb in self.bulbs:
-            power = await bulb.get_power()
-            if not power:
-                await bulb.set_color([58275, 0, 0, 2500])
-            await bulb.set_power(True)
-            await bulb.set_color([58275, 0, 65365, 2500], duration=60000)
+            try:
+                power = await bulb.get_power()
+                if not power:
+                    await bulb.set_color([58275, 0, 0, 2500])
+                await bulb.set_power(True)
+                await bulb.set_color([58275, 0, 65365, 2500], duration=60000)
+            except DeviceOffline:
+                logger.info("Light is offline %s (%s)", bulb.mac_addr, bulb.label)
 
     async def flash(self) -> None:
         for bulb in self.bulbs:
-            # transient, color, period,cycles,duty_cycle,waveform
-            await bulb.set_waveform({
-                "color": [0, 0, 0, 3500],
-                "transient": 1,
-                "period": 100,
-                "cycles": 30,
-                "duty_cycle": 0,
-                "waveform": 0
-            })
+            try:
+                # transient, color, period,cycles,duty_cycle,waveform
+                await bulb.set_waveform({
+                    "color": [0, 0, 0, 3500],
+                    "transient": 1,
+                    "period": 100,
+                    "cycles": 30,
+                    "duty_cycle": 0,
+                    "waveform": 0
+                })
+            except DeviceOffline:
+                logger.info("Light is offline %s (%s)", bulb.mac_addr, bulb.label)
 
     def __str__(self):
         return ", ".join([str(b.label) for b in self.bulbs])
