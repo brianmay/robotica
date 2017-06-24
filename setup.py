@@ -14,8 +14,9 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'Click>=6.0',
     'APScheduler',
-    'click',
+    'click-log',
     'aiolifx',
+    'PyYAML',
 ]
 
 setup_requirements = [
