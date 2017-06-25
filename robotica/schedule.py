@@ -53,7 +53,6 @@ class Schedule:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
 
         if 'lights' in entry:
-            bulbs = None
             action = entry['lights']['action']
             if 'group' in entry['lights']:
                 group = entry['lights']['group']
@@ -61,11 +60,13 @@ class Schedule:
             elif 'label' in entry['lights']:
                 label = entry['lights']['label']
                 bulbs = self._bulbs.get_by_label(label)
-            if bulbs is not None:
-                logger.debug("About to '%s' lights %s", action, bulbs)
-                await getattr(bulbs, action)()
             else:
-                logger.error("Cannot parse lights entry %s", entry['lights'])
+                groups = entry['lights'].get('groups', [])
+                labels = entry['lights'].get('labels', [])
+                bulbs = self._bulbs.get_by_lists(groups=groups, labels=labels)
+
+            logger.debug("About to '%s' lights %s", action, bulbs)
+            await getattr(bulbs, action)()
 
         if 'message' in entry:
             logger.debug("About to say '%s'.", entry['message']['text'])
