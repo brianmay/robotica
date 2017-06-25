@@ -1,54 +1,6 @@
 day:
-  school:
-    description: A school day
-    when:
-      days_of_week:
-      - Monday
-      - Tuesday
-      - Wednesday
-      - Thursday
-      - Friday
-
-    schedule:
-
-      '06:30':
-        lights:
-          group: Bedrooms
-          action: wake_up
-        message:
-          text: Time to wake up.
-
-      '07:00':
-        message:
-          text: Time to wake up RIGHT NOW.
-
-      '07:10':
-        message:
-          text: Time to eat breakfast.
-
-      '07:20':
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: Time to clean your teeth.
-
-      '07:25':
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
-
-      '07:30':
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to take off for the school bus.
-
   everyday:
-    description: Everyday
+    description: Everyday.
 
     schedule:
 
@@ -116,6 +68,54 @@ day:
           action: flash
         message:
           text: It is time to go to the toilet and sleep.
+
+  school:
+    description: A school day.
+    when:
+      days_of_week:
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+
+    schedule:
+
+      '06:30':
+        lights:
+          group: Bedrooms
+          action: wake_up
+        message:
+          text: Time to wake up.
+
+      '07:00':
+        message:
+          text: Time to wake up RIGHT NOW.
+
+      '07:10':
+        message:
+          text: Time to eat breakfast.
+
+      '07:20':
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: Time to clean your teeth.
+
+      '07:25':
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+
+      '07:30':
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to take off for the school bus.
 
   shower:
     description: Have a shower day.
