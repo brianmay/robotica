@@ -33,8 +33,13 @@ class Schedule:
     def get_days_for_date(self, date: datetime.date):
         results = []
         for name, day in self._schedule['day'].items():
-            when = day.get('when')
-            match = True
+            disabled = day.get('disabled', False)
+            if disabled:
+                when = None
+                match = False
+            else:
+                match = True
+                when = day.get('when')
             if when is not None:
                 match = False
                 if 'days_of_week' in when:

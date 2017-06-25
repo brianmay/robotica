@@ -180,6 +180,7 @@ day:
 
   football:
     description: Football day.
+    disabled: True
     when:
       days_of_week:
       - Sunday

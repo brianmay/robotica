@@ -5,6 +5,10 @@ History
 0.1.5 (UNRELASED)
 -----------------
 
+Added
+~~~~~
+* disabled option for schedules, to disable without deleting.
+
 Fixes
 ~~~~~
 * Don't replace other schedules unless this one is active.
