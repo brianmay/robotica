@@ -22,9 +22,10 @@ logger = logging.getLogger(__name__)
 @click.command()
 @click.option('--say_path', default="say", help='Path to say program.')
 @click.option('--schedule_path', default="sample.yaml", help='Path to schedule file.')
+@click.option('--lifx/--no-lifx', default=False)
 @click_log.simple_verbosity_option()
 @click_log.init()
-def main(say_path, schedule_path):
+def main(say_path, schedule_path, lifx):
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
@@ -36,13 +37,18 @@ def main(say_path, schedule_path):
     scheduler.start()
     schedule.add_tasks_to_scheduler(scheduler)
 
-    listener = loop.create_datagram_endpoint(
-        partial(aiolifx.LifxDiscovery, loop, bulbs),
-        local_addr=('0.0.0.0', aiolifx.aiolifx.UDP_BROADCAST_PORT))
-
     server = None
-    try:
+
+    if lifx:
+        logger.debug("LIFX enabled.")
+        listener = loop.create_datagram_endpoint(
+            partial(aiolifx.LifxDiscovery, loop, bulbs),
+            local_addr=('0.0.0.0', aiolifx.aiolifx.UDP_BROADCAST_PORT))
         server = loop.create_task(listener)
+    else:
+        logger.debug("LIFX disabled")
+
+    try:
         loop.run_forever()
     finally:
         if server is not None:
