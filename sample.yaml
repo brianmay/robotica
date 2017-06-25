@@ -13,7 +13,7 @@ day:
 
       '06:30':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: wake_up
         message:
           text: Time to wake up.
@@ -28,21 +28,21 @@ day:
 
       '07:20':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: Time to clean your teeth.
 
       '07:25':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to get into the Tesla and fasten your seat belts ready for take off.
 
       '07:30':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to take off for the school bus.
@@ -66,21 +66,21 @@ day:
 
       '18:10':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to pack up.
 
       '18:20':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to make lunch for tomorrow.
 
       '18:25':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to set the table.
@@ -91,28 +91,28 @@ day:
 
       '19:45':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to get tired for bed and put on pajamas.
 
       '20:00':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to clean your teeth in bed and read.
 
       '20:15':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to go to the toilet in bed and talk.
 
       '20:30':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to go to the toilet and sleep.
@@ -127,7 +127,7 @@ day:
 
       '19:15':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to have a bath in the shower.
@@ -142,7 +142,7 @@ day:
 
       '08:00':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: wake_up
         message:
           text: Time to wake up.
@@ -157,21 +157,21 @@ day:
 
       '08:50':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: Time to clean your teeth.
 
       '08:55':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to get into the Tesla and fasten your seat belts ready for take off.
 
       '09:00':
         lights:
-          group: bedroom
+          group: Bedrooms
           action: flash
         message:
           text: It is time to take off for football.
