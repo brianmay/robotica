@@ -132,11 +132,60 @@ day:
         message:
           text: It is time to have a bath in the shower.
 
+  church:
+    description: Church day.
+    when:
+      days_of_week:
+      - Sunday
+    replaces:
+    - school
+
+    schedule:
+
+      '08:30':
+        lights:
+          group: Bedrooms
+          action: wake_up
+        message:
+          text: Time to wake up.
+
+      '09:00':
+        message:
+          text: Time to wake up RIGHT NOW.
+
+      '09:10':
+        message:
+          text: Time to eat breakfast.
+
+      '09:20':
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: Time to clean your teeth.
+
+      '09:25':
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+
+      '09:30':
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to take off for church.
+
   football:
     description: Football day.
     when:
       days_of_week:
       - Sunday
+    replaces:
+    - school
+    - church
 
     schedule:
 
