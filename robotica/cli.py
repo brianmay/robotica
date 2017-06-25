@@ -2,7 +2,6 @@
 
 """Console script for Robotica."""
 import asyncio
-import sys
 from functools import partial
 import logging
 
@@ -53,7 +52,6 @@ def main(say_path, schedule_path, lifx):
     finally:
         if server is not None:
             server.cancel()
-        loop.remove_reader(sys.stdin)
         loop.close()
 
 
