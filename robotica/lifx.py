@@ -59,35 +59,34 @@ class Bulbs:
     async def _do_for_every_light(self, fun: Callable[[aiolifx.aiolifx.Light], Coroutine[any, any, None]]):
         coroutines = []
         for bulb in self.bulbs:
-            coroutines.append(fun(bulb))
+            try:
+                coroutines.append(fun(bulb))
+            except DeviceOffline:
+                logger.info("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
         await asyncio.gather(*coroutines, loop=self._loop)
 
-    async def _wake_sup(self, bulb: aiolifx.aiolifx.Light) -> None:
-        try:
-            power = await bulb.get_power()
-            if not power:
-                await bulb.set_color([58275, 0, 0, 2500])
-            await bulb.set_power(True)
-            await bulb.set_color([58275, 0, 65365, 2500], duration=60000)
-        except DeviceOffline:
-            logger.info("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
+    @staticmethod
+    async def _wake_up(bulb: aiolifx.aiolifx.Light) -> None:
+        power = await bulb.get_power()
+        if not power:
+            await bulb.set_color([58275, 0, 0, 2500])
+        await bulb.set_power(True)
+        await bulb.set_color([58275, 0, 65365, 2500], duration=60000)
 
     async def wake_up(self) -> None:
         await self._do_for_every_light(self._wake_up)
 
-    async def _flash(self, bulb: aiolifx.aiolifx.Light) -> None:
-        try:
-            # transient, color, period,cycles,duty_cycle,waveform
-            await bulb.set_waveform({
-                "color": [0, 0, 0, 3500],
-                "transient": 1,
-                "period": 100,
-                "cycles": 30,
-                "duty_cycle": 0,
-                "waveform": 0
-            })
-        except DeviceOffline:
-            logger.info("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
+    @staticmethod
+    async def _flash(bulb: aiolifx.aiolifx.Light) -> None:
+        # transient, color, period,cycles,duty_cycle,waveform
+        await bulb.set_waveform({
+            "color": [0, 0, 0, 3500],
+            "transient": 1,
+            "period": 100,
+            "cycles": 30,
+            "duty_cycle": 0,
+            "waveform": 0
+        })
 
     async def flash(self) -> None:
         await self._do_for_every_light(self._flash)
