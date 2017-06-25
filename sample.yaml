@@ -10,7 +10,7 @@ day:
 
       '18:00':
         message:
-          text: It is time to save the gave.
+          text: It is time to save the game.
 
       '18:05':
         message:
