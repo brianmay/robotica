@@ -1,11 +1,17 @@
-include AUTHORS.rst
-include CONTRIBUTING.rst
-include HISTORY.rst
 include LICENSE
-include README.rst
+include Makefile
+include *.ini
+include *.rst
+include *.txt
+include *.yaml
+exclude config.yaml
+include .editorconfig
 
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
+recursive-exclude docs/_build *
+
+recursive-include .github *.md
