@@ -14,7 +14,7 @@ class Bulbs:
         self.bulbs = []  # type: List[aiolifx.aiolifx.Light]
 
     def register(self, bulb: aiolifx.aiolifx.Light) -> None:
-        logger.debug("Register light %s.", bulb.mac_addr)
+        logger.info("Register light %s.", bulb.mac_addr)
         self._loop.create_task(self.async_register(bulb))
 
     async def async_register(self, bulb: aiolifx.aiolifx.Light) -> None:
