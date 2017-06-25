@@ -2,6 +2,13 @@
 History
 =======
 
+0.1.5 (UNRELASED)
+-----------------
+
+Fixes
+~~~~~
+* Don't replace other schedules unless this one is active.
+
 0.1.5 (2017-06-25)
 ------------------
 

@@ -46,10 +46,10 @@ class Schedule:
                 else:
                     logger.error("Error processing when name %s entry %s", name, day)
             replaces = day.get('replaces', [])
-            for replace in replaces:
-                if replace in results:
-                    results.remove(replace)
             if match:
+                for replace in replaces:
+                    if replace in results:
+                        results.remove(replace)
                 results.append(name)
         return results
 
