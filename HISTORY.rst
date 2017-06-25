@@ -2,6 +2,31 @@
 History
 =======
 
+0.1.5 (2017-06-25)
+------------------
+
+Added
+~~~~~
+* Support acting on list of lights or groups.
+* Sending message to all lights asynchronously.
+* One schedule can override another schedule.
+
+0.1.4 (2017-06-24)
+------------------
+
+Fixes
+~~~~~
+* Add missing required depends.
+* Handle Device Offline errors correctly.
+
+0.1.3 (2017-06-24)
+------------------
+
+Added
+~~~~~
+* Schedule config file support.
+* Requires my fork of aiolifx.
+
 0.1.2 (2017-06-19)
 ------------------
 
