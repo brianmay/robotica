@@ -21,31 +21,22 @@ logger = logging.getLogger(__name__)
 @click.command()
 @click.option('--audio', default="audio-sample.yaml", help='Path to audio.')
 @click.option('--schedule', default="schedule-sample.yaml", help='Path to schedule config.')
-@click.option('--lifx/--no-lifx', default=False)
+@click.option('--lifx', default="lifx-sample.yaml", help='Path to LIFX config.')
 @click_log.simple_verbosity_option()
 @click_log.init()
 def main(audio, schedule, lifx):
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
-    bulbs = Bulbs(loop)
+    bulbs = Bulbs(loop, lifx)
+    server = bulbs.start()
+
     message = Audio(loop, audio)
     schedule = Schedule(schedule, bulbs, message)
 
     scheduler = AsyncIOScheduler()
     scheduler.start()
     schedule.add_tasks_to_scheduler(scheduler)
-
-    server = None
-
-    if lifx:
-        logger.debug("LIFX enabled.")
-        listener = loop.create_datagram_endpoint(
-            partial(aiolifxc.LifxDiscovery, loop, bulbs),
-            local_addr=('0.0.0.0', aiolifxc.aiolifx.UDP_BROADCAST_PORT))
-        server = loop.create_task(listener)
-    else:
-        logger.debug("LIFX disabled")
 
     try:
         loop.run_forever()

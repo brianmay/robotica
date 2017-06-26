@@ -1,17 +1,31 @@
 import asyncio
 import logging
-from typing import List, Coroutine, Callable
+from functools import partial
+from typing import List, Coroutine, Callable, Union
 
 import aiolifxc
+import yaml
 from aiolifxc.aiolifx import DeviceOffline
 
 logger = logging.getLogger(__name__)
 
 
 class Bulbs:
-    def __init__(self, loop: asyncio.AbstractEventLoop):
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: str):
         self._loop = loop
+        with open(config, "r") as file:
+            self._config = yaml.safe_load(file)
+        self._disabled = self._config['disabled']
         self.bulbs = []  # type: List[aiolifxc.aiolifx.Light]
+
+    def start(self) -> Union[asyncio.Task, None]:
+        if self._disabled:
+            return None
+        logger.debug("LIFX enabled.")
+        listener = self._loop.create_datagram_endpoint(
+            partial(aiolifxc.LifxDiscovery, self._loop, self),
+            local_addr=('0.0.0.0', aiolifxc.aiolifx.UDP_BROADCAST_PORT))
+        return self._loop.create_task(listener)
 
     def register(self, bulb: aiolifxc.aiolifx.Light) -> None:
         logger.info("Register light %s.", bulb.mac_addr)
