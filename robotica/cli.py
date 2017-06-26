@@ -20,17 +20,17 @@ logger = logging.getLogger(__name__)
 
 @click.command()
 @click.option('--say_path', default="say", help='Path to say program.')
-@click.option('--schedule_path', default="sample.yaml", help='Path to schedule file.')
+@click.option('--schedule', default="schedule-sample.yaml", help='Path to schedule file.')
 @click.option('--lifx/--no-lifx', default=False)
 @click_log.simple_verbosity_option()
 @click_log.init()
-def main(say_path, schedule_path, lifx):
+def main(say_path, schedule, lifx):
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
     bulbs = Bulbs(loop)
     message = Audio(loop, say_path)
-    schedule = Schedule(schedule_path, bulbs, message)
+    schedule = Schedule(schedule, bulbs, message)
 
     scheduler = AsyncIOScheduler()
     scheduler.start()

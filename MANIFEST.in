@@ -4,7 +4,7 @@ include *.ini
 include *.rst
 include *.txt
 include *.yaml
-exclude config.yaml
+exclude schedule.yaml
 include .editorconfig
 
 recursive-include tests *

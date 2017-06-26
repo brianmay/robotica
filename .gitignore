@@ -65,4 +65,4 @@ target/
 /.idea/
 
 # Other
-config.yaml
+schedule.yaml
