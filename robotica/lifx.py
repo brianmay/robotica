@@ -10,7 +10,7 @@ from aiolifxc.aiolifx import DeviceOffline
 logger = logging.getLogger(__name__)
 
 
-class Bulbs:
+class Lifx:
     def __init__(self, loop: asyncio.AbstractEventLoop, config: str):
         self._loop = loop
         with open(config, "r") as file:
@@ -48,17 +48,17 @@ class Bulbs:
                 break
             idx += 1
 
-    def get_by_group(self, group: str) -> 'Bulbs':
-        result = Bulbs(self._loop)
+    def get_by_group(self, group: str) -> 'Lifx':
+        result = Lifx(self._loop)
         result.bulbs = list(filter(lambda b: b.group == group, self.bulbs))
         return result
 
-    def get_by_label(self, label: str) -> 'Bulbs':
-        result = Bulbs(self._loop)
+    def get_by_label(self, label: str) -> 'Lifx':
+        result = Lifx(self._loop)
         result.bulbs = list(filter(lambda b: b.label == label, self.bulbs))
         return result
 
-    def get_by_lists(self, *, groups: List[str]=None, labels: List[str]=None) -> 'Bulbs':
+    def get_by_lists(self, *, groups: List[str]=None, labels: List[str]=None) -> 'Lifx':
         lights = set()
         if groups is not None:
             for group in groups:
@@ -66,7 +66,7 @@ class Bulbs:
         if labels is not None:
             for label in labels:
                 lights |= set(filter(lambda b: b.label == label, self.bulbs))
-        result = Bulbs(self._loop)
+        result = Lifx(self._loop)
         result.bulbs = list(lights)
         return result
 

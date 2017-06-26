@@ -10,7 +10,7 @@ import click
 import click_log
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from robotica.lifx import Bulbs
+from robotica.lifx import Lifx
 from robotica.audio import Audio
 from robotica.schedule import Schedule
 
@@ -28,15 +28,15 @@ def main(audio, schedule, lifx):
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
-    bulbs = Bulbs(loop, lifx)
-    server = bulbs.start()
+    lifx_obj = Lifx(loop, lifx)
+    server = lifx_obj.start()
 
-    message = Audio(loop, audio)
-    schedule = Schedule(schedule, bulbs, message)
+    audio_obj = Audio(loop, audio)
+    schedule_obj = Schedule(schedule, lifx_obj, audio_obj)
 
     scheduler = AsyncIOScheduler()
     scheduler.start()
-    schedule.add_tasks_to_scheduler(scheduler)
+    schedule_obj.add_tasks_to_scheduler(scheduler)
 
     try:
         loop.run_forever()
