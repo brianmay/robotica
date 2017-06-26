@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.7 (2017-06-26)
+------------------
+
+Added
+~~~~~
+* Enhancements to schedule processing.
+* Ability to disable LIFX support.
+
 0.1.6 (2017-06-25)
 ------------------
 
