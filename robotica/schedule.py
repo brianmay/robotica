@@ -31,7 +31,9 @@ class Schedule:
         self._message = message
 
     def get_days_for_date(self, date: datetime.date) -> List[str]:
-        results = []
+        results = []  # type: List[str]
+        remove = set()  # type: Set[str]
+
         for name, day in self._schedule['day'].items():
             disabled = day.get('disabled', False)
             if disabled:
@@ -50,15 +52,20 @@ class Schedule:
                             break
                 else:
                     logger.error("Error processing when name %s entry %s", name, day)
-            replaces = day.get('replaces', [])
             if match:
-                for replace in replaces:
-                    if replace in results:
-                        results.remove(replace)
+                replaces = day.get('replaces', [])
+                remove.update(replaces)
+                logger.debug("Adding day %s to schedule.", name)
                 results.append(name)
+
+        for name in remove:
+            if name in results:
+                logger.debug("Removing day %s from schedule.", name)
+                results.remove(name)
+
         return results
 
-    def get_schedule_for_date(self, date: datetime.date) -> List[Dict[str,str]]:
+    def get_schedule_for_date(self, date: datetime.date) -> List[Dict[str, str]]:
         days = self.get_days_for_date(date)
 
         logger.info("Getting schedule for days %s.", days)
