@@ -1,6 +1,6 @@
 """ Robotica Schedule. """
 import datetime
-from typing import Dict
+from typing import Dict, List
 import logging
 
 import yaml
@@ -30,7 +30,7 @@ class Schedule:
         self._bulbs = bulbs
         self._message = message
 
-    def get_days_for_date(self, date: datetime.date):
+    def get_days_for_date(self, date: datetime.date) -> List[str]:
         results = []
         for name, day in self._schedule['day'].items():
             disabled = day.get('disabled', False)
@@ -56,6 +56,19 @@ class Schedule:
                     if replace in results:
                         results.remove(replace)
                 results.append(name)
+        return results
+
+    def get_schedule_for_date(self, date: datetime.date) -> List[Dict[str,str]]:
+        days = self.get_days_for_date(date)
+
+        logger.info("Getting schedule for days %s.", days)
+        results = []  # type: List[Dict[str,str]]
+        for day in days:
+            logger.debug("Adding day '%s' to schedule.", day)
+            schedule = self._schedule['day'][day]['schedule']
+            for entry in schedule:
+                logger.debug("Adding entry '%s' to schedule", entry)
+                results.append(entry)
         return results
 
     async def do_task(self, entry: Dict[str, Dict[str, str]]):
@@ -87,21 +100,17 @@ class Schedule:
 
     def add_tasks_to_scheduler(self, scheduler: BaseScheduler):
         date = datetime.date.today()
-        days = self.get_days_for_date(date)
+        schedule = self.get_schedule_for_date(date)
 
-        logger.info("Updating schedule for days %s.", days)
         scheduler.remove_all_jobs()
         scheduler.add_job(
             self.prepare_for_day, 'cron', hour="00", minute="00",
             kwargs={'scheduler': scheduler}
         )
-        for day in days:
-            logger.debug("Adding day '%s' to schedule.", day)
-            schedule = self._schedule['day'][day]['schedule']
-            for time, entry in schedule.items():
-                logger.debug("Adding time '%s' to schedule with '%s'.", time, entry)
-                hour, minute = time.split(':')
-                scheduler.add_job(
-                    self.do_task, 'cron', hour=hour, minute=minute,
-                    kwargs={'entry': entry}
-                )
+        for entry in schedule:
+            logger.debug("Adding entry '%s' to scheduler.", entry)
+            hour, minute = entry['time'].split(':')
+            scheduler.add_job(
+                self.do_task, 'cron', hour=hour, minute=minute,
+                kwargs={'entry': entry}
+            )
