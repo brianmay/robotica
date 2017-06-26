@@ -1,1 +1,5 @@
-say_path: /usr/bin/say
+say_cmd: /usr/bin/say {text}
+play_cmd: /usr/bin/aplay {file}
+sounds:
+  prefix: /usr/share/sounds/purple/login.wav
+  postfix: /usr/share/sounds/purple/logout.wav
