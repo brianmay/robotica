@@ -2,8 +2,8 @@ import asyncio
 import logging
 from typing import List, Coroutine, Callable
 
-import aiolifx
-from aiolifx.aiolifx import DeviceOffline
+import aiolifxc
+from aiolifxc.aiolifx import DeviceOffline
 
 logger = logging.getLogger(__name__)
 
@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 class Bulbs:
     def __init__(self, loop: asyncio.AbstractEventLoop):
         self._loop = loop
-        self.bulbs = []  # type: List[aiolifx.aiolifx.Light]
+        self.bulbs = []  # type: List[aiolifxc.aiolifx.Light]
 
-    def register(self, bulb: aiolifx.aiolifx.Light) -> None:
+    def register(self, bulb: aiolifxc.aiolifx.Light) -> None:
         logger.info("Register light %s.", bulb.mac_addr)
         self._loop.create_task(self.async_register(bulb))
 
-    async def async_register(self, bulb: aiolifx.aiolifx.Light) -> None:
+    async def async_register(self, bulb: aiolifxc.aiolifx.Light) -> None:
         try:
             await bulb.get_metadata(loop=self._loop)
             self.bulbs.append(bulb)
@@ -25,7 +25,7 @@ class Bulbs:
         except DeviceOffline:
             logger.error("Light is offline %s", bulb.mac_addr)
 
-    def unregister(self, bulb: aiolifx.aiolifx.Light) -> None:
+    def unregister(self, bulb: aiolifxc.aiolifx.Light) -> None:
         logger.info("Unregister light %s (%s).", bulb.mac_addr, bulb.label)
         idx = 0
         for x in list([y.mac_addr for y in self.bulbs]):
@@ -56,7 +56,7 @@ class Bulbs:
         result.bulbs = list(lights)
         return result
 
-    async def _do_for_every_light(self, fun: Callable[[aiolifx.aiolifx.Light], Coroutine[any, any, None]]):
+    async def _do_for_every_light(self, fun: Callable[[aiolifxc.aiolifx.Light], Coroutine[any, any, None]]):
         coroutines = []
         for bulb in self.bulbs:
             try:
@@ -66,7 +66,7 @@ class Bulbs:
         await asyncio.gather(*coroutines, loop=self._loop)
 
     @staticmethod
-    async def _wake_up(bulb: aiolifx.aiolifx.Light) -> None:
+    async def _wake_up(bulb: aiolifxc.aiolifx.Light) -> None:
         power = await bulb.get_power()
         if not power:
             await bulb.set_color([58275, 0, 0, 2500])
@@ -77,7 +77,7 @@ class Bulbs:
         await self._do_for_every_light(self._wake_up)
 
     @staticmethod
-    async def _flash(bulb: aiolifx.aiolifx.Light) -> None:
+    async def _flash(bulb: aiolifxc.aiolifx.Light) -> None:
         # transient, color, period,cycles,duty_cycle,waveform
         await bulb.set_waveform({
             "color": [0, 0, 0, 3500],

@@ -1,6 +1,6 @@
 APScheduler==3.3.1
 click==6.7
 click-log==0.1.8
-git+https://github.com/brianmay/aiolifx.git@async_functions#egg=aiolifx
+aiolifxc==0.5.1
 PyYAML==3.12
 python-dateutil==2.6.0

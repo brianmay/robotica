@@ -5,7 +5,7 @@ import asyncio
 from functools import partial
 import logging
 
-import aiolifx
+import aiolifxc
 import click
 import click_log
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -41,8 +41,8 @@ def main(say_path, schedule_path, lifx):
     if lifx:
         logger.debug("LIFX enabled.")
         listener = loop.create_datagram_endpoint(
-            partial(aiolifx.LifxDiscovery, loop, bulbs),
-            local_addr=('0.0.0.0', aiolifx.aiolifx.UDP_BROADCAST_PORT))
+            partial(aiolifxc.LifxDiscovery, loop, bulbs),
+            local_addr=('0.0.0.0', aiolifxc.aiolifx.UDP_BROADCAST_PORT))
         server = loop.create_task(listener)
     else:
         logger.debug("LIFX disabled")

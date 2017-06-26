@@ -15,7 +15,7 @@ requirements = [
     'Click>=6.0',
     'APScheduler',
     'click-log',
-    'aiolifx',
+    'aiolifxc',
     'PyYAML',
     'python-dateutil',
 ]
