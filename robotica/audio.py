@@ -23,6 +23,7 @@ class Audio:
         split = [
             value.format(**params) for value in shlex.split(cmd)
         ]
+        logger.info("About to execute %s", split)
         process = await asyncio.create_subprocess_exec(*split)
         await process.wait()
 
