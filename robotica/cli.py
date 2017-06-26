@@ -11,7 +11,7 @@ import click_log
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from robotica.lifx import Bulbs
-from robotica.audio import Message
+from robotica.audio import Audio
 from robotica.schedule import Schedule
 
 
@@ -29,7 +29,7 @@ def main(say_path, schedule_path, lifx):
     loop = asyncio.get_event_loop()
 
     bulbs = Bulbs(loop)
-    message = Message(loop, say_path)
+    message = Audio(loop, say_path)
     schedule = Schedule(schedule_path, bulbs, message)
 
     scheduler = AsyncIOScheduler()

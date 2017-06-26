@@ -8,7 +8,7 @@ import yaml
 from apscheduler.schedulers.base import BaseScheduler
 
 from robotica.lifx import Bulbs
-from robotica.audio import Message
+from robotica.audio import Audio
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ _weekdays = {
 
 
 class Schedule:
-    def __init__(self, schedule_path: str, bulbs: Bulbs, message: Message):
+    def __init__(self, schedule_path: str, bulbs: Bulbs, message: Audio):
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
         self._expand_templates()

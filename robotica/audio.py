@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Message:
+class Audio:
 
     def __init__(self, loop: asyncio.AbstractEventLoop, say_path: str):
         self._loop = loop
