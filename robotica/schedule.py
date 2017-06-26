@@ -8,7 +8,7 @@ import yaml
 from apscheduler.schedulers.base import BaseScheduler
 
 from robotica.lifx import Bulbs
-from robotica.message import Message
+from robotica.audio import Message
 
 logger = logging.getLogger(__name__)
 

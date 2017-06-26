@@ -11,7 +11,7 @@ import click_log
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from robotica.lifx import Bulbs
-from robotica.message import Message
+from robotica.audio import Message
 from robotica.schedule import Schedule
 
 
