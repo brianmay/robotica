@@ -1,8 +1,9 @@
 """ Robotica Schedule. """
 import datetime
-from typing import Dict, List
+from typing import Dict, List, Set
 import logging
 
+from dateutil.parser import parse
 import yaml
 from apscheduler.schedulers.base import BaseScheduler
 
@@ -27,8 +28,46 @@ class Schedule:
     def __init__(self, schedule_path: str, bulbs: Bulbs, message: Message):
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
+        self._expand_templates()
         self._bulbs = bulbs
         self._message = message
+
+    def _expand_templates(self):
+        today = datetime.date.today()
+        for name, day in self._schedule['day'].items():
+            schedule = day['schedule']
+            new_schedule = []
+            for entry in schedule:
+
+                if 'template' in entry:
+                    time = entry['time']
+                    hours, minutes = map(int, time.split(':'))
+                    source_time = datetime.time(hour=hours, minute=minutes)
+                    source_datetime = datetime.datetime.combine(today, source_time)
+
+                    template_name = entry['template']
+                    template = self._schedule['template'][template_name]
+                    template_schedule = template['schedule']
+
+                    for template_entry in template_schedule:
+                        delta_time = template_entry['time']
+                        delta_hours, delta_minutes = map(int, delta_time.split(':'))
+                        delta = datetime.timedelta(hours=delta_hours, minutes=delta_minutes)
+
+                        required_datetime = source_datetime + delta
+                        if required_datetime.date() != today:
+                            logger.error(
+                                "Skipping template as time not for today: %s.",
+                                required_datetime)
+                            continue
+
+                        str_time = required_datetime.strftime('%H:%M')
+                        new_entry = dict(template_entry)
+                        new_entry['time'] = str_time
+                        self._schedule['day'][name]['schedule'].append(new_entry)
+                else:
+                    new_schedule.append(entry)
+            day['schedule'] = new_schedule
 
     def get_days_for_date(self, date: datetime.date) -> List[str]:
         results = []  # type: List[str]
@@ -36,22 +75,39 @@ class Schedule:
 
         for name, day in self._schedule['day'].items():
             disabled = day.get('disabled', False)
+            when = day.get('when')
+            match = True
+
             if disabled:
-                when = None
                 match = False
-            else:
-                match = True
-                when = day.get('when')
-            if when is not None:
-                match = False
+            elif when is not None:
+                found_day_of_week = False
                 if 'days_of_week' in when:
                     for required_day_of_week in when['days_of_week']:
                         required_value = _weekdays[required_day_of_week.lower()]
                         if date.weekday() == required_value:
-                            match = True
+                            found_day_of_week = True
                             break
-                else:
-                    logger.error("Error processing when name %s entry %s", name, day)
+                    if not found_day_of_week:
+                        match = False
+                if 'dates' in when:
+                    found_date = False
+                    for date_str in when['dates']:
+                        if isinstance(date_str, str) and ' to ' in date_str:
+                            split = date_str.split(" to ", maxsplit=1)
+                            first_date = parse(split[0]).date()
+                            last_date = parse(split[1]).date()
+                        elif isinstance(date_str, str):
+                            first_date = parse(date_str).date()
+                            last_date = first_date
+                        else:
+                            first_date = date_str
+                            last_date = date_str
+                        if first_date <= date <= last_date:
+                            found_date = True
+                    if not found_date:
+                        match = False
+
             if match:
                 replaces = day.get('replaces', [])
                 remove.update(replaces)

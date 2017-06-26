@@ -17,6 +17,7 @@ requirements = [
     'click-log',
     'aiolifx',
     'PyYAML',
+    'python-dateutil',
 ]
 
 setup_requirements = [

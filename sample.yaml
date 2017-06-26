@@ -1,3 +1,74 @@
+template:
+
+  wake_up:
+    schedule:
+      - time: '00:00'
+        lights:
+          group: Bedrooms
+          action: wake_up
+        message:
+          text: Time to wake up.
+
+      - time: '00:30'
+        message:
+          text: Time to wake up RIGHT NOW.
+
+      - time: '00:40'
+        message:
+          text: Time to eat breakfast.
+
+      - time: '00:50'
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: Time to clean your teeth.
+
+      - time: '00:55'
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+
+      - time: '01:00'
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to take off in the Tesla. You should already be in the car.
+
+  bed:
+    schedule:
+
+      - time: '00:00'
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to get tired for bed and put on pajamas.
+
+      - time: '00:15'
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to clean your teeth in bed and read.
+
+      - time: '00:30'
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to go to the toilet in bed and talk.
+
+      - time: '00:45'
+        lights:
+          group: Bedrooms
+          action: flash
+        message:
+          text: It is time to go to the toilet and sleep.
+
 day:
   everyday:
     description: Everyday.
@@ -42,32 +113,7 @@ day:
           text: It is time to eat tea.
 
       - time: '19:45'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to get tired for bed and put on pajamas.
-
-      - time: '20:00'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to clean your teeth in bed and read.
-
-      - time: '20:15'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to go to the toilet in bed and talk.
-
-      - time: '20:30'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to go to the toilet and sleep.
+        template: bed
 
   school:
     description: A school day.
@@ -78,44 +124,13 @@ day:
       - Wednesday
       - Thursday
       - Friday
+      dates:
+      - 2017-04-18 to 2017-06-30
 
     schedule:
 
       - time: '06:30'
-        lights:
-          group: Bedrooms
-          action: wake_up
-        message:
-          text: Time to wake up.
-
-      - time: '07:00'
-        message:
-          text: Time to wake up RIGHT NOW.
-
-      - time: '07:10'
-        message:
-          text: Time to eat breakfast.
-
-      - time: '07:20'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: Time to clean your teeth.
-
-      - time: '07:25'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
-
-      - time: '07:30'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to take off for the school bus.
+        template: wake_up
 
   shower:
     description: Have a shower day.
@@ -143,40 +158,7 @@ day:
     schedule:
 
       - time: '08:30'
-        lights:
-          group: Bedrooms
-          action: wake_up
-        message:
-          text: Time to wake up.
-
-      - time: '09:00'
-        message:
-          text: Time to wake up RIGHT NOW.
-
-      - time: '09:10'
-        message:
-          text: Time to eat breakfast.
-
-      - time: '09:20'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: Time to clean your teeth.
-
-      - time: '09:25'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
-
-      - time: '09:30'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to take off for church.
+        template: wake_up
 
   football:
     description: Football day.
@@ -184,6 +166,8 @@ day:
     when:
       days_of_week:
       - Sunday
+      dates:
+      - 2017-06-25
     replaces:
     - school
     - church
@@ -191,37 +175,4 @@ day:
     schedule:
 
       - time: '08:00'
-        lights:
-          group: Bedrooms
-          action: wake_up
-        message:
-          text: Time to wake up.
-
-      - time: '08:30'
-        message:
-          text: Time to wake up RIGHT NOW.
-
-      - time: '08:40'
-        message:
-          text: Time to eat breakfast.
-
-      - time: '08:50'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: Time to clean your teeth.
-
-      - time: '08:55'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
-
-      - time: '09:00'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to take off for football.
+        template: wake_up
