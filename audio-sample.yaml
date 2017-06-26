@@ -2,4 +2,5 @@ say_cmd: /usr/bin/say {text}
 play_cmd: /usr/bin/aplay {file}
 sounds:
   prefix: /usr/share/sounds/purple/login.wav
+  repeat: /usr/share/sounds/purple/alert.wav
   postfix: /usr/share/sounds/purple/logout.wav
