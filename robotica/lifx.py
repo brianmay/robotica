@@ -48,13 +48,16 @@ class Lifx:
                 break
             idx += 1
 
+    def _clone(self) -> 'Lifx':
+        return Lifx(self._loop, self._config)
+
     def get_by_group(self, group: str) -> 'Lifx':
-        result = Lifx(self._loop)
+        result = self._clone()
         result.bulbs = list(filter(lambda b: b.group == group, self.bulbs))
         return result
 
     def get_by_label(self, label: str) -> 'Lifx':
-        result = Lifx(self._loop)
+        result = self._clone()
         result.bulbs = list(filter(lambda b: b.label == label, self.bulbs))
         return result
 
