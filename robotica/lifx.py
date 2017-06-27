@@ -11,11 +11,14 @@ logger = logging.getLogger(__name__)
 
 
 class Lifx:
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: str):
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: Union[None, str]):
         self._loop = loop
-        with open(config, "r") as file:
-            self._config = yaml.safe_load(file)
-        self._disabled = self._config['disabled']
+        if config is not None:
+            with open(config, "r") as file:
+                self._config = yaml.safe_load(file)
+            self._disabled = self._config['disabled']
+        else:
+            self._disabled = True
         self.bulbs = []  # type: List[aiolifxc.aiolifx.Light]
 
     def start(self) -> Union[asyncio.Task, None]:
@@ -49,7 +52,9 @@ class Lifx:
             idx += 1
 
     def _clone(self) -> 'Lifx':
-        return Lifx(self._loop, self._config)
+        result = Lifx(self._loop, None)
+        result._config = self._config
+        return result
 
     def get_by_group(self, group: str) -> 'Lifx':
         result = self._clone()
