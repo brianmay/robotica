@@ -93,7 +93,7 @@ class Lifx:
             await bulb.set_power(True)
             await bulb.set_color([58275, 0, 65365, 2500], duration=60000)
         except DeviceOffline:
-            logger.info("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
+            logger.error("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
 
     async def wake_up(self) -> None:
         await self._do_for_every_light(self._wake_up)
@@ -111,7 +111,7 @@ class Lifx:
                 "waveform": 0
             })
         except DeviceOffline:
-            logger.info("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
+            logger.error("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
 
     async def flash(self) -> None:
         await self._do_for_every_light(self._flash)
