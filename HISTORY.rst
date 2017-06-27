@@ -2,6 +2,17 @@
 History
 =======
 
+0.1.8 (2017-06-27)
+------------------
+
+Added
+~~~~~
+* Declare Python 3.6 support.
+* Use aiolifxc library.
+* Added new config files.
+* Add music support.
+* Add ability to customize command line for say program.
+
 0.1.7 (2017-06-26)
 ------------------
 
