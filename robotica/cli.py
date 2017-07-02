@@ -2,10 +2,8 @@
 
 """Console script for Robotica."""
 import asyncio
-from functools import partial
 import logging
 
-import aiolifxc
 import click
 import click_log
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -24,7 +22,7 @@ logger = logging.getLogger(__name__)
 @click.option('--lifx', default="lifx-sample.yaml", help='Path to LIFX config.')
 @click_log.simple_verbosity_option()
 @click_log.init()
-def main(audio, schedule, lifx):
+def main(audio: str, schedule: str, lifx: str) -> None:
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 

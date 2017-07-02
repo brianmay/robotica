@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class Audio:
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: str):
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: str) -> None:
         self._loop = loop
         with open(config, "r") as file:
             self._config = yaml.safe_load(file)

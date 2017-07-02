@@ -1,6 +1,6 @@
 """ Robotica Schedule. """
 import datetime
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Any  # NOQA
 import logging
 
 from dateutil.parser import parse
@@ -25,14 +25,14 @@ _weekdays = {
 
 
 class Schedule:
-    def __init__(self, schedule_path: str, bulbs: Lifx, message: Audio):
+    def __init__(self, schedule_path: str, lifx: Lifx, message: Audio) -> None:
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
         self._expand_templates()
-        self._bulbs = bulbs
+        self._lifx = lifx
         self._message = message
 
-    def _expand_templates(self):
+    def _expand_templates(self) -> None:
         today = datetime.date.today()
         for name, day in self._schedule['day'].items():
             schedule = day['schedule']
@@ -134,34 +134,44 @@ class Schedule:
                 results.append(entry)
         return results
 
-    async def do_task(self, entry: Dict[str, Dict[str, str]]):
+    async def do_task(self, entry: Dict[str, Dict[str, Any]]) -> None:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
 
         if 'lights' in entry:
+            lifx = self._lifx
+            groups = []  # type: List[str]
+            labels = []  # type: List[str]
+
             action = entry['lights']['action']
             if 'group' in entry['lights']:
-                group = entry['lights']['group']
-                bulbs = self._bulbs.get_by_group(group)
+                groups = [entry['lights']['group']]
             elif 'label' in entry['lights']:
-                label = entry['lights']['label']
-                bulbs = self._bulbs.get_by_label(label)
+                labels = [entry['lights']['label']]
             else:
                 groups = entry['lights'].get('groups', [])
                 labels = entry['lights'].get('labels', [])
-                bulbs = self._bulbs.get_by_lists(groups=groups, labels=labels)
+                assert isinstance(groups, dict)
+                assert isinstance(labels, dict)
 
-            logger.debug("About to '%s' lights %s", action, bulbs)
-            await getattr(bulbs, action)()
+            logger.debug(
+                "About to '%s' lights groups=%s labels=%s.",
+                action, groups, labels)
+            if action == "flash":
+                await lifx.flash(groups=groups, labels=labels)
+            elif action == "wake_up":
+                await lifx.wake_up(groups=groups, labels=labels)
+            else:
+                logger.error("Unknown action '%s'.", action)
 
         if 'message' in entry:
             logger.debug("About to say '%s'.", entry['message']['text'])
             await self._message.say(entry['message']['text'])
 
-    async def prepare_for_day(self, scheduler: BaseScheduler):
+    async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())
         self.add_tasks_to_scheduler(scheduler)
 
-    def add_tasks_to_scheduler(self, scheduler: BaseScheduler):
+    def add_tasks_to_scheduler(self, scheduler: BaseScheduler) -> None:
         date = datetime.date.today()
         schedule = self.get_schedule_for_date(date)
 
