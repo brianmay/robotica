@@ -91,7 +91,7 @@ class Lifx:
             if not power:
                 await bulb.set_color([58275, 0, 0, 2500])
             await bulb.set_power(True)
-            await bulb.set_color([58275, 0, 65365, 2500], duration=60000)
+            await bulb.set_color([58275, 0, 65535, 2500], duration=60000)
         except DeviceOffline:
             logger.error("Light is offline %s (%s).", bulb.mac_addr, bulb.label)
 
@@ -101,12 +101,12 @@ class Lifx:
     @staticmethod
     async def _flash(bulb: aiolifxc.aiolifx.Light) -> None:
         try:
-            # transient, color, period,cycles,duty_cycle,waveform
+            # color is [Hue, Saturation, Brightness, Kelvin], duration in ms
             await bulb.set_waveform({
-                "color": [0, 0, 0, 3500],
+                "color": [120, 65535, 65535, 3500],
                 "transient": 1,
-                "period": 100,
-                "cycles": 30,
+                "period": 1000,
+                "cycles": 10,
                 "duty_cycle": 0,
                 "waveform": 0
             })
