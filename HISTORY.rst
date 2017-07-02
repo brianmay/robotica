@@ -60,7 +60,7 @@ Added
 0.1.2 (2017-06-19)
 ------------------
 
-Fixes
+Fixed
 ~~~~~
 * PyPI meta information.
 * day_of_week value incorrect.
