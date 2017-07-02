@@ -75,10 +75,6 @@ day:
 
     schedule:
 
-      - time: '*:*'
-        message:
-          text: It is time to go to your save point.
-
       - time: '17:55'
         message:
           text: It is time to go to your save point.
