@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.10 (2017-07-02)
+------------------
+
+Fixed
+~~~~~
+* Actually change requirements.txt to require aiolifxc version 0.5.2.
+* Update setup.py to reflect this also.
+
+
 0.1.9 (2017-07-02)
 ------------------
 
