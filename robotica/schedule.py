@@ -25,12 +25,12 @@ _weekdays = {
 
 
 class Schedule:
-    def __init__(self, schedule_path: str, lifx: Lifx, message: Audio) -> None:
+    def __init__(self, schedule_path: str, lifx: Lifx, audio: Audio) -> None:
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
         self._expand_templates()
         self._lifx = lifx
-        self._message = message
+        self._audio = audio
 
     def _expand_templates(self) -> None:
         today = datetime.date.today()
@@ -165,7 +165,7 @@ class Schedule:
 
         if 'message' in entry:
             logger.debug("About to say '%s'.", entry['message']['text'])
-            await self._message.say(entry['message']['text'])
+            await self._audio.say(entry['message']['text'])
 
     async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())
