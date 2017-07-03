@@ -113,7 +113,7 @@ class Schedule:
 
         # We can easily get from schedule -> replaces, but we want
         # to index the reverse relationship.
-        replaced_by = {}  # type: Dict[List[str]]
+        replaced_by = {}  # type: Dict[str, List[str]]
         for name in results:
             replaced_by[name] = []
         for name in results:
