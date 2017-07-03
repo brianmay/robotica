@@ -71,7 +71,6 @@ class Schedule:
 
     def get_days_for_date(self, date: datetime.date) -> List[str]:
         results = []  # type: List[str]
-        remove = set()  # type: Set[str]
 
         for name, day in self._schedule['day'].items():
             disabled = day.get('disabled', False)
