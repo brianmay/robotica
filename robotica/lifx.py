@@ -52,7 +52,7 @@ class Lifx:
             color=Color(hue=120, saturation=100, brightness=100, kelvin=3500),
             transient=1,
             period=1000,
-            cycles=10,
+            cycles=2,
             duty_cycle=0,
             waveform=0,
         )
