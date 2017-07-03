@@ -2,6 +2,18 @@
 History
 =======
 
+0.1.11 (2017-07-04)
+------------------
+
+Changed
+~~~~~~~
+* Flash light flashes 2 times, not 10.
+
+Fixed
+~~~~~
+* Fix get_days_for_date replaces functionality.
+
+
 0.1.10 (2017-07-02)
 ------------------
 
