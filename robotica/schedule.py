@@ -109,15 +109,64 @@ class Schedule:
                         match = False
 
             if match:
-                replaces = day.get('replaces', [])
-                remove.update(replaces)
-                logger.debug("Adding day %s to schedule.", name)
+                logger.debug("Adding schedule %s", name)
                 results.append(name)
 
-        for name in remove:
-            if name in results:
-                logger.debug("Removing day %s from schedule.", name)
-                results.remove(name)
+        # We can easily get from schedule -> replaces, but we want
+        # to index the reverse relationship.
+        replaced_by = {}  # type: Dict[List[str]]
+        for name in results:
+            replaced_by[name] = []
+        for name in results:
+            replaces_list = self._schedule['day'][name].get('replaces', [])
+            for replaces in replaces_list:
+                if replaces in replaced_by:
+                    replaced_by[replaces].append(name)
+
+        # For every leaf node - that is any node not in danger of being replaced,
+        # we can process its replaces.
+        n = 0
+        while len(replaced_by) > 0 and n < 10:
+            n += 1
+
+            for name in list(replaced_by.keys()):
+
+                # Skip entry if already been removed.
+                if name not in replaced_by:
+                    continue
+
+                # Get the replaced_by list for the entry.
+                replaced_by_list = replaced_by[name]
+
+                # Skip node if not leaf node.
+                # Node is a leaf node if no schedules are replacing it.
+                if len(replaced_by_list) > 0:
+                    continue
+
+                # This node is a leaf, therefore it is not getting replaced.
+                # As this node is staying, we should process its replaces list.
+                replaces_list = self._schedule['day'][name].get('replaces', [])
+                for replaces in replaces_list:
+                    logger.debug("Replacing schedule %s", replaces)
+                    # For every replaces, we should remove all references to this
+                    # node.
+                    for __, remove_list in replaced_by.items():
+                        if replaces in remove_list:
+                            remove_list.remove(replaces)
+                    # Remove it from the dictionary.
+                    if replaces in replaced_by:
+                        del replaced_by[replaces]
+                    # We also remove it from the results list.
+                    if replaces in results:
+                        results.remove(replaces)
+
+                # Now we remove the leaf node from dictionary, so we
+                # don't process it again.
+                del replaced_by[name]
+
+        # if too many loops, probably a loop in the replaces:
+        if n >= 10:
+            raise RuntimeError("Possible circular loop in replaces")
 
         return results
 
