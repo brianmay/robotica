@@ -64,6 +64,9 @@ target/
 # PyCharm
 /.idea/
 
+# mypy
+/.mypy_cache/
+
 # Other
 audio.yaml
 lifx.yaml
