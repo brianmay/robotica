@@ -8,6 +8,8 @@ template:
           action: wake_up
         message:
           text: Time to wake up.
+        music:
+          play_list: wake_up
 
       - time: '00:30'
         message:
@@ -74,6 +76,12 @@ day:
     description: Everyday.
 
     schedule:
+
+      - time: '*:*'
+        message:
+          text: Beep
+        music:
+          play_list: wake_up
 
       - time: '17:55'
         message:

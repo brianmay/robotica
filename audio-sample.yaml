@@ -1,5 +1,12 @@
-say_cmd: /usr/bin/say {text}
-play_cmd: /usr/bin/aplay {file}
+say_cmd:
+- espeak -ven+f5 -k5 {text}
+play_cmd:
+- aplay {file}
+music_play_cmd:
+- mpc load {play_list}
+- mpc play
+music_stop_cmd:
+- mpc stop
 sounds:
   prefix: /usr/share/sounds/purple/login.wav
   repeat: /usr/share/sounds/purple/alert.wav

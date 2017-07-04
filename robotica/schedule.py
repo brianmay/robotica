@@ -215,6 +215,10 @@ class Schedule:
             logger.debug("About to say '%s'.", entry['message']['text'])
             await self._audio.say(entry['message']['text'])
 
+        if 'music' in entry:
+            logger.debug("About to play '%s'.", entry['music']['play_list'])
+            await self._audio.music_play(entry['music']['play_list'])
+
     async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())
         self.add_tasks_to_scheduler(scheduler)
