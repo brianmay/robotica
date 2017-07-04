@@ -3,6 +3,7 @@ say_cmd:
 play_cmd:
 - aplay {file}
 music_play_cmd:
+- mpc clear
 - mpc load {play_list}
 - mpc play
 music_stop_cmd:
