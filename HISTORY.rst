@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.12 (2017-07-04)
+-------------------
+
+Added
+~~~~~
+* Ability for audio to run list of commands.
+* Ability to schedule music.
+
+
 0.1.11 (2017-07-04)
 ------------------
 
