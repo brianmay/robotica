@@ -49,7 +49,7 @@ class Lifx:
             groups=groups, labels=labels)  # type: Lights
         logger.info("Lifx flash for lights %s.", lights)
         await lights.set_waveform(
-            color=Color(hue=120, saturation=100, brightness=100, kelvin=3500),
+            color=Color(hue=0, saturation=100, brightness=100, kelvin=3500),
             transient=1,
             period=1000,
             cycles=2,
