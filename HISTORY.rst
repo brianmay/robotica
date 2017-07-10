@@ -2,6 +2,22 @@
 History
 =======
 
+0.1.13 (2017-07-10)
+-------------------
+
+Changed
+~~~~~~~
+* Update aiolifxc from 0.5.3 to 0.5.4.
+* Update pytest from 3.1.2 to 3.1.3.
+
+Fixed
+~~~~~
+* Flash lights red, not green.
+* Update sample schedule file.
+* Clear playlist before adding new songs.
+* Ignore mypy cache directory.
+
+
 0.1.12 (2017-07-04)
 -------------------
 
