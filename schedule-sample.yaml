@@ -2,74 +2,75 @@ template:
 
   wake_up:
     schedule:
-      - time: '00:00'
-        lights:
-          group: Bedrooms
-          action: wake_up
-        message:
-          text: Time to wake up.
-        music:
-          play_list: wake_up
 
-      - time: '00:30'
-        message:
-          text: Time to wake up RIGHT NOW.
+    - time: '00:00'
+      lights:
+        group: Bedrooms
+        action: wake_up
+      message:
+        text: Time to wake up.
+      music:
+        play_list: wake_up
 
-      - time: '00:40'
-        message:
-          text: Time to eat breakfast.
+    - time: '00:30'
+      message:
+        text: Time to wake up RIGHT NOW.
 
-      - time: '00:50'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: Time to clean your teeth.
+    - time: '00:40'
+      message:
+        text: Time to eat breakfast.
 
-      - time: '00:55'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+    - time: '00:50'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: Time to clean your teeth.
 
-      - time: '01:00'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to take off in the Tesla. You should already be in the car.
+    - time: '00:55'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+
+    - time: '01:00'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to take off in the Tesla. You should already be in the car.
 
   bed:
     schedule:
 
-      - time: '00:00'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to get tired for bed and put on pajamas.
+    - time: '00:00'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to get tired for bed and put on pajamas.
 
-      - time: '00:15'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to clean your teeth in bed and read.
+    - time: '00:15'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to clean your teeth in bed and read.
 
-      - time: '00:30'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to go to the toilet in bed and talk.
+    - time: '00:30'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to go to the toilet in bed and talk.
 
-      - time: '00:45'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to go to the toilet and sleep.
+    - time: '00:45'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to go to the toilet and sleep.
 
 day:
   everyday:
@@ -77,54 +78,48 @@ day:
 
     schedule:
 
-      - time: '*:*'
-        message:
-          text: Beep
-        music:
-          play_list: wake_up
+    - time: '17:55'
+      message:
+        text: It is time to go to your save point.
 
-      - time: '17:55'
-        message:
-          text: It is time to go to your save point.
+    - time: '18:00'
+      message:
+        text: It is time to save the game.
 
-      - time: '18:00'
-        message:
-          text: It is time to save the game.
+    - time: '18:05'
+      message:
+        text: It is time to turn off all electronic entertainment devices.
 
-      - time: '18:05'
-        message:
-          text: It is time to turn off all electronic entertainment devices.
+    - time: '18:10'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to pack up.
 
-      - time: '18:10'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to pack up.
+    - time: '18:20'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to make lunch for tomorrow.
 
-      - time: '18:20'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to make lunch for tomorrow.
+    - time: '18:25'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to set the table.
 
-      - time: '18:25'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to set the table.
+    - time: '18:30'
+      message:
+        text: It is time to eat tea.
 
-      - time: '18:30'
-        message:
-          text: It is time to eat tea.
-
-      - time: '19:45'
-        template: bed
+    - time: '19:45'
+      template: bed
 
   school:
-    description: A school day.
+    description: A normal school day.
     when:
       days_of_week:
       - Monday
@@ -133,54 +128,24 @@ day:
       - Thursday
       - Friday
       dates:
+      - 2017-01-30 to 2017-03-31
       - 2017-04-18 to 2017-06-30
-
+      - 2017-07-17 to 2017-09-22
+      - 2017-10-09 to 2017-12-22
     schedule:
-
-      - time: '06:30'
-        template: wake_up
+    - time: '06:30'
+      template: wake_up
 
   shower:
     description: Have a shower day.
     when:
       days_of_week:
       - Sunday
-
     schedule:
+    - time: '19:15'
+      lights:
+        group: Bedrooms
+        action: flash
+      message:
+        text: It is time to have a bath in the shower.
 
-      - time: '19:15'
-        lights:
-          group: Bedrooms
-          action: flash
-        message:
-          text: It is time to have a bath in the shower.
-
-  church:
-    description: Church day.
-    when:
-      days_of_week:
-      - Sunday
-    replaces:
-    - school
-
-    schedule:
-
-      - time: '08:30'
-        template: wake_up
-
-  football:
-    description: Football day.
-    disabled: True
-    when:
-      days_of_week:
-      - Sunday
-      dates:
-      - 2017-06-25
-    replaces:
-    - school
-    - church
-
-    schedule:
-
-      - time: '08:00'
-        template: wake_up
