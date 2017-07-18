@@ -23,7 +23,8 @@ class Lifx:
         if self._disabled:
             return None
         logger.debug("LIFX enabled.")
-        return self._lights.start_discover()
+        task = self._lights.astart_discover()  # type: asyncio.Task
+        return task
 
     async def wake_up(self, labels: List[str], groups: List[str]) -> None:
         async def single_device(device: Light) -> None:
