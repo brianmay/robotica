@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import List, Union
+from typing import List, Union, Optional
 
 import yaml
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
@@ -19,7 +19,7 @@ class Lifx:
             self._disabled = True
         self._lights = Lights(loop=self._loop)
 
-    def start(self) -> Union[asyncio.Task, None]:
+    def start(self) -> Optional[asyncio.Task]:
         if self._disabled:
             return None
         logger.debug("LIFX enabled.")
