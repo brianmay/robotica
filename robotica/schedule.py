@@ -25,9 +25,12 @@ _weekdays = {
 
 
 class Schedule:
-    def __init__(self, schedule_path: str, lifx: Lifx, audio: Audio) -> None:
+    def __init__(
+            self, schedule_path: str, location: str,
+            lifx: Lifx, audio: Audio) -> None:
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
+        self._location = location
         self._expand_templates()
         self._lifx = lifx
         self._audio = audio
@@ -38,6 +41,13 @@ class Schedule:
             schedule = day['schedule']
             new_schedule = []
             for entry in schedule:
+
+                if 'location' in entry:
+                    if self._location not in entry['location']:
+                        logger.debug(
+                            "Skipping template '%s' due to wrong location",
+                            entry)
+                        continue
 
                 if 'template' in entry:
                     time = entry['time']
@@ -178,6 +188,13 @@ class Schedule:
             logger.debug("Adding day '%s' to schedule.", day)
             schedule = self._schedule['day'][day]['schedule']
             for entry in schedule:
+                if 'location' in entry:
+                    if self._location not in entry['location']:
+                        logger.debug(
+                            "Skipping entry '%s' due to wrong location",
+                            entry)
+                        continue
+
                 logger.debug("Adding entry '%s' to schedule", entry)
                 results.append(entry)
         return results

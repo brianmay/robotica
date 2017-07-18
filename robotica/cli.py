@@ -17,12 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 @click.command()
+@click.argument('location')
 @click.option('--audio', default="audio-sample.yaml", help='Path to audio.')
 @click.option('--schedule', default="schedule-sample.yaml", help='Path to schedule config.')
 @click.option('--lifx', default="lifx-sample.yaml", help='Path to LIFX config.')
 @click_log.simple_verbosity_option()
 @click_log.init()
-def main(audio: str, schedule: str, lifx: str) -> None:
+def main(location: str, audio: str, schedule: str, lifx: str) -> None:
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
@@ -30,7 +31,7 @@ def main(audio: str, schedule: str, lifx: str) -> None:
     server = lifx_obj.start()
 
     audio_obj = Audio(loop, audio)
-    schedule_obj = Schedule(schedule, lifx_obj, audio_obj)
+    schedule_obj = Schedule(schedule, location, lifx_obj, audio_obj)
 
     scheduler = AsyncIOScheduler()
     scheduler.start()
