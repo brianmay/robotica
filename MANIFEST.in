@@ -5,6 +5,7 @@ include *.rst
 include *.txt
 include *.yaml
 exclude audio.yaml
+exclude http.yaml
 exclude lifx.yaml
 exclude schedule.yaml
 include .editorconfig

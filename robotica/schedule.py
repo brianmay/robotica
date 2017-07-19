@@ -3,6 +3,7 @@ import datetime
 from typing import Dict, List, Set, Any  # NOQA
 import logging
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dateutil.parser import parse
 import yaml
 from apscheduler.schedulers.base import BaseScheduler
@@ -34,6 +35,14 @@ class Schedule:
         self._expand_templates()
         self._lifx = lifx
         self._audio = audio
+
+    def start(self) -> None:
+        scheduler = AsyncIOScheduler()
+        scheduler.start()
+        self.add_tasks_to_scheduler(scheduler)
+
+    def stop(self) -> None:
+        pass
 
     def _expand_templates(self) -> None:
         today = datetime.date.today()

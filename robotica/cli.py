@@ -6,10 +6,10 @@ import logging
 
 import click
 import click_log
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from robotica.lifx import Lifx
 from robotica.audio import Audio
+from robotica.http import Http
 from robotica.schedule import Schedule
 
 
@@ -21,27 +21,30 @@ logger = logging.getLogger(__name__)
 @click.option('--audio', default="audio-sample.yaml", help='Path to audio.')
 @click.option('--schedule', default="schedule-sample.yaml", help='Path to schedule config.')
 @click.option('--lifx', default="lifx-sample.yaml", help='Path to LIFX config.')
+@click.option('--http', default="http-sample.yaml", help='Path to HTTP config.')
 @click_log.simple_verbosity_option()
 @click_log.init()
-def main(location: str, audio: str, schedule: str, lifx: str) -> None:
+def main(location: str, audio: str, schedule: str, lifx: str, http: str) -> None:
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
     lifx_obj = Lifx(loop, lifx)
-    server = lifx_obj.start()
+    lifx_obj.start()
 
     audio_obj = Audio(loop, audio)
-    schedule_obj = Schedule(schedule, location, lifx_obj, audio_obj)
 
-    scheduler = AsyncIOScheduler()
-    scheduler.start()
-    schedule_obj.add_tasks_to_scheduler(scheduler)
+    schedule_obj = Schedule(schedule, location, lifx_obj, audio_obj)
+    schedule_obj.start()
+
+    http_obj = Http(loop, http, schedule_obj)
+    http_obj.start()
 
     try:
         loop.run_forever()
     finally:
-        if server is not None:
-            server.cancel()
+        http_obj.stop()
+        schedule_obj.stop()
+        lifx_obj.stop()
         loop.close()
 
 
