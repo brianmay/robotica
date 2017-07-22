@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.15 (2017-07-22)
+-------------------
+
+Fixed
+~~~~~
+* Add aiohttp to setup.py depends.
+* Fix bad disabled logic.
+
+
 0.1.14 (2017-07-22)
 -------------------
 
