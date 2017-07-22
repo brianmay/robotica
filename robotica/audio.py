@@ -15,6 +15,7 @@ class Audio:
         self._loop = loop
         with open(config, "r") as file:
             self._config = yaml.safe_load(file)
+        self._disabled = self._config['disabled']
         self._say_cmd = self._config.get('say_cmd') or []
         self._play_cmd = self._config.get('play_cmd') or []
         self._music_play_cmd = self._config.get('music_play_cmd') or []
@@ -22,6 +23,8 @@ class Audio:
         self._location = self._config.get('location')
 
     def is_action_required_for_locations(self, locations: Set[str]) -> bool:
+        if self._disabled:
+            return False
         return self._location in locations
 
     @staticmethod
@@ -37,7 +40,7 @@ class Audio:
                 logger.info("Command %s returned %d", split, result)
 
     async def say(self, locations: Set[str], text: str) -> None:
-        if self._location in locations:
+        if self.is_action_required_for_locations(locations):
             await self.music_stop(locations)
             await self.play(locations, 'prefix')
             await self._execute(self._say_cmd, {'text': text})
@@ -46,14 +49,14 @@ class Audio:
             await self.play(locations, 'postfix')
 
     async def play(self, locations: Set[str], sound: str) -> None:
-        sound_file = self._config['sounds'][sound]
-        if sound_file and self._location in locations:
+        sound_file = self._config['sounds'].get(sound)
+        if sound_file and self.is_action_required_for_locations(locations):
             await self._execute(self._play_cmd, {'file': sound_file})
 
     async def music_play(self, locations: Set[str], play_list: str) -> None:
-        if self._location in locations:
+        if self.is_action_required_for_locations(locations):
             await self._execute(self._music_play_cmd, {'play_list': play_list})
 
     async def music_stop(self, locations: Set[str]) -> None:
-        if self._location in locations:
+        if self.is_action_required_for_locations(locations):
             await self._execute(self._music_stop_cmd, {})

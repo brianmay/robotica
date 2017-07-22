@@ -1,3 +1,4 @@
+disabled: False
 say_cmd:
 - espeak -ven+f5 -k5 {text}
 play_cmd:

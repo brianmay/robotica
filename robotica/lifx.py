@@ -30,6 +30,8 @@ class Lifx:
 
     def _get_labels_for_locations(self, locations: Set[str]) -> Set[str]:
         labels = set()  # type: Set[str]
+        if self._disabled:
+            return set()
         for location in locations:
             labels = labels | set(self._config["location"].get(location, []))
         return labels
