@@ -5,7 +5,6 @@ template:
 
     - time: '00:00'
       lights:
-        group: Bedrooms
         action: wake_up
       message:
         text: Time to wake up.
@@ -16,27 +15,24 @@ template:
       message:
         text: Time to wake up RIGHT NOW.
 
-    - time: '00:40'
+    - time: '00:35'
       message:
         text: Time to eat breakfast.
 
-    - time: '00:50'
+    - time: '00:45'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: Time to clean your teeth.
 
     - time: '00:55'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to get into the Tesla and fasten your seat belts ready for take off.
 
     - time: '01:00'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to take off in the Tesla. You should already be in the car.
@@ -46,28 +42,24 @@ template:
 
     - time: '00:00'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to get tired for bed and put on pajamas.
 
     - time: '00:15'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to clean your teeth in bed and read.
 
     - time: '00:30'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to go to the toilet in bed and talk.
 
     - time: '00:45'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to go to the toilet and sleep.
@@ -75,6 +67,10 @@ template:
 day:
   everyday:
     description: Everyday.
+    locations:
+    - Brian
+    - Dining
+    - Twins
 
     schedule:
 
@@ -92,21 +88,18 @@ day:
 
     - time: '18:10'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to pack up.
 
     - time: '18:20'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to make lunch for tomorrow.
 
     - time: '18:25'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to set the table.
@@ -120,6 +113,8 @@ day:
 
   school:
     description: A normal school day.
+    locations:
+    - Dining
     when:
       days_of_week:
       - Monday
@@ -134,17 +129,24 @@ day:
       - 2017-10-09 to 2017-12-22
     schedule:
     - time: '06:30'
+      locations:
+      - Twins
       template: wake_up
 
   shower:
     description: Have a shower day.
+    locations:
+    - Brian
+    - Dining
+    - Twins
     when:
       days_of_week:
+      - Friday
+      - Saturday
       - Sunday
     schedule:
     - time: '19:15'
       lights:
-        group: Bedrooms
         action: flash
       message:
         text: It is time to have a bath in the shower.

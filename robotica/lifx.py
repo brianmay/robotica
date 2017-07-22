@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import List, Union
+from typing import List, Union, Set
 
 import yaml
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
@@ -28,7 +28,22 @@ class Lifx:
         if not self._disabled:
             self._task.cancel()
 
-    async def wake_up(self, labels: List[str], groups: List[str]) -> None:
+    def _get_labels_for_locations(self, locations: Set[str]) -> Set[str]:
+        labels = set()  # type: Set[str]
+        for location in locations:
+            labels = labels | set(self._config["location"].get(location, []))
+        return labels
+
+    def is_action_required_for_locations(self, locations: Set[str]) -> bool:
+        labels = self._get_labels_for_locations(locations)
+        return len(labels) > 0
+
+    def _get_lights_from_locations(self, locations: Set[str]) -> Lights:
+        labels = self._get_labels_for_locations(locations)
+        lights = self._lights.get_by_lists(labels=list(labels))  # type: Lights
+        return lights
+
+    async def wake_up(self, locations: Set[str]) -> None:
         async def single_device(device: Light) -> None:
             try:
                 power = await device.get_power()
@@ -42,14 +57,12 @@ class Lifx:
             except DeviceOffline:
                 logger.error("Light is offline %s.", device)
 
-        lights = self._lights.get_by_lists(
-            groups=groups, labels=labels)  # type: Lights
+        lights = self._get_lights_from_locations(locations)
         logger.info("Lifx wakeup for lights %s.", lights)
         await lights.do_for_every_device(Light, single_device)
 
-    async def flash(self, labels: List[str], groups: List[str]) -> None:
-        lights = self._lights.get_by_lists(
-            groups=groups, labels=labels)  # type: Lights
+    async def flash(self, locations: Set[str]) -> None:
+        lights = self._get_lights_from_locations(locations)
         logger.info("Lifx flash for lights %s.", lights)
         await lights.set_waveform(
             color=Color(hue=0, saturation=100, brightness=100, kelvin=3500),
@@ -59,6 +72,3 @@ class Lifx:
             duty_cycle=0,
             waveform=0,
         )
-
-    def __str__(self) -> str:
-        return ", ".join([str(b) for b in self._lights.light_list])

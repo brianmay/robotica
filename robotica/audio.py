@@ -2,7 +2,7 @@
 import asyncio
 import logging
 import shlex
-from typing import Dict, List
+from typing import Dict, List, Set
 
 import yaml
 
@@ -19,6 +19,10 @@ class Audio:
         self._play_cmd = self._config.get('play_cmd') or []
         self._music_play_cmd = self._config.get('music_play_cmd') or []
         self._music_stop_cmd = self._config.get('music_stop_cmd') or []
+        self._location = self._config.get('location')
+
+    def is_action_required_for_locations(self, locations: Set[str]) -> bool:
+        return self._location in locations
 
     @staticmethod
     async def _execute(cmd_list: List[str], params: Dict[str, str]) -> None:
@@ -32,21 +36,24 @@ class Audio:
             if result != 0:
                 logger.info("Command %s returned %d", split, result)
 
-    async def say(self, text: str) -> None:
-        await self.music_stop()
-        await self.play('prefix')
-        await self._execute(self._say_cmd, {'text': text})
-        await self.play('repeat')
-        await self._execute(self._say_cmd, {'text': text})
-        await self.play('postfix')
+    async def say(self, locations: Set[str], text: str) -> None:
+        if self._location in locations:
+            await self.music_stop(locations)
+            await self.play(locations, 'prefix')
+            await self._execute(self._say_cmd, {'text': text})
+            await self.play(locations, 'repeat')
+            await self._execute(self._say_cmd, {'text': text})
+            await self.play(locations, 'postfix')
 
-    async def play(self, sound: str) -> None:
+    async def play(self, locations: Set[str], sound: str) -> None:
         sound_file = self._config['sounds'][sound]
-        if sound_file:
+        if sound_file and self._location in locations:
             await self._execute(self._play_cmd, {'file': sound_file})
 
-    async def music_play(self, play_list: str) -> None:
-        await self._execute(self._music_play_cmd, {'play_list': play_list})
+    async def music_play(self, locations: Set[str], play_list: str) -> None:
+        if self._location in locations:
+            await self._execute(self._music_play_cmd, {'play_list': play_list})
 
-    async def music_stop(self) -> None:
-        await self._execute(self._music_stop_cmd, {})
+    async def music_stop(self, locations: Set[str]) -> None:
+        if self._location in locations:
+            await self._execute(self._music_stop_cmd, {})

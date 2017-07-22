@@ -45,7 +45,8 @@ class Http:
             parsed_date = datetime.date(year=year, month=month, day=day)
         except ValueError:
             raise web.HTTPBadRequest()
-        return self._schedule.get_schedule_for_date(parsed_date)
+        schedule = self._schedule.get_schedule_for_date(parsed_date)
+        return [s.to_json() for s in schedule]
 
     def _get_application(self) -> web.Application:
         """ Setup router to point to our handlers. """

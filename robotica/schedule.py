@@ -1,6 +1,6 @@
 """ Robotica Schedule. """
 import datetime
-from typing import Dict, List, Set, Any  # NOQA
+from typing import Dict, List, Set, Any, Optional  # NOQA
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -25,11 +25,41 @@ _weekdays = {
 }
 
 
+class TimeEntry:
+    def __init__(
+            self,
+            time: datetime.time,
+            locations: Set[str],
+            lights: Optional[Dict[str, Any]],
+            message: Optional[Dict[str, Any]],
+            music: Optional[Dict[str, Any]]) -> None:
+        self.time = time
+        self.locations = locations
+        self.lights= lights
+        self.message = message
+        self.music = music
+
+    def to_json(self) -> Dict[str, Any]:
+        return {
+            'time': str(self.time),
+            'locations': list(self.locations),
+            'lights': self.lights,
+            'message': self.message,
+            'music': self.music,
+        }
+
+    def __str__(self) -> str:
+        return "schedule@%s" % self.time
+
+    def __repr__(self) -> str:
+        return "<schedule %s %s %s %s %s>" % (
+            self.time, self.locations, self.lights, self.message, self.music)
+
+
 class Schedule:
     def __init__(self, schedule_path: str, lifx: Lifx, audio: Audio) -> None:
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
-        self._expand_templates()
         self._lifx = lifx
         self._audio = audio
 
@@ -41,42 +71,89 @@ class Schedule:
     def stop(self) -> None:
         pass
 
-    def _expand_templates(self) -> None:
-        today = datetime.date.today()
-        for name, day in self._schedule['day'].items():
-            schedule = day['schedule']
-            new_schedule = []
-            for entry in schedule:
+    def _parse_entry(
+            self,
+            date: datetime.date,
+            locations: Set[str], entry: Dict,
+            time_offset: Optional[datetime.time]) -> List[TimeEntry]:
+        result = []  # type: List[TimeEntry]
 
-                if 'template' in entry:
-                    time = entry['time']
-                    hours, minutes = map(int, time.split(':'))
-                    source_time = datetime.time(hour=hours, minute=minutes)
-                    source_datetime = datetime.datetime.combine(today, source_time)
+        locations = locations | set(entry.get('locations', []))
 
-                    template_name = entry['template']
-                    template = self._schedule['template'][template_name]
-                    template_schedule = template['schedule']
+        time = entry['time']
+        hours, minutes = map(int, time.split(':'))
+        parsed_time = datetime.time(hour=hours, minute=minutes)
 
-                    for template_entry in template_schedule:
-                        delta_time = template_entry['time']
-                        delta_hours, delta_minutes = map(int, delta_time.split(':'))
-                        delta = datetime.timedelta(hours=delta_hours, minutes=delta_minutes)
+        if time_offset is not None:
+            parsed_datetime = datetime.datetime.combine(date, parsed_time)
+            delta = datetime.timedelta(
+                hours=time_offset.hour, minutes=time_offset.minute)
 
-                        required_datetime = source_datetime + delta
-                        if required_datetime.date() != today:
-                            logger.error(
-                                "Skipping template as time not for today: %s.",
-                                required_datetime)
-                            continue
+            required_datetime = parsed_datetime + delta
+            if required_datetime.date() != date:
+                logger.error(
+                    "Skipping time not for date: %s.",
+                    required_datetime)
 
-                        str_time = required_datetime.strftime('%H:%M')
-                        new_entry = dict(template_entry)
-                        new_entry['time'] = str_time
-                        self._schedule['day'][name]['schedule'].append(new_entry)
-                else:
-                    new_schedule.append(entry)
-            day['schedule'] = new_schedule
+            parsed_time = required_datetime.time()
+
+        if 'template' in entry:
+            template_name = entry['template']
+            template_result = self._expand_template(
+                date=date,
+                time=parsed_time,
+                locations=locations,
+                template_name=template_name,
+            )
+            result = result + template_result
+
+        lights = None
+        message = None
+        music = None
+
+        if self._lifx.is_action_required_for_locations(locations):
+
+            if 'lights' in entry:
+                lights = entry['lights']
+
+        if self._audio.is_action_required_for_locations(locations):
+
+            if 'message' in entry:
+                message = entry['message']
+
+            if 'music' in entry:
+                music = entry['music']
+
+        if any([lights, message, music]):
+            result.append(TimeEntry(
+                time=parsed_time,
+                locations=locations,
+                lights=lights,
+                message=message,
+                music=music,
+            ))
+
+        return result
+
+    def _expand_template(
+            self, date: datetime.date, time: datetime.time, locations: Set[str],
+            template_name: str) -> List[TimeEntry]:
+        result = []  # type: List[TimeEntry]
+
+        template = self._schedule['template'][template_name]
+        template_schedule = template['schedule']
+
+        for template_entry in template_schedule:
+
+            entry_result = self._parse_entry(
+                date=date,
+                locations=locations,
+                entry=template_entry,
+                time_offset=time,
+            )
+            result = result + entry_result
+
+        return result
 
     def get_days_for_date(self, date: datetime.date) -> List[str]:
         results = []  # type: List[str]
@@ -178,55 +255,59 @@ class Schedule:
 
         return results
 
-    def get_schedule_for_date(self, date: datetime.date) -> List[Dict[str, str]]:
+    def get_schedule_for_date(self, date: datetime.date) -> List[TimeEntry]:
+        result = []  # type: List[TimeEntry]
+
         days = self.get_days_for_date(date)
 
         logger.info("Getting schedule for days %s.", days)
-        results = []  # type: List[Dict[str,str]]
         for day in days:
             logger.debug("Adding day '%s' to schedule.", day)
+            locations = set(self._schedule['day'][day]['locations'])
             schedule = self._schedule['day'][day]['schedule']
-            for entry in schedule:
-                logger.debug("Adding entry '%s' to schedule", entry)
-                results.append(entry)
-        return results
 
-    async def do_task(self, entry: Dict[str, Dict[str, Any]]) -> None:
+            for entry in schedule:
+                entry_result = self._parse_entry(
+                    date=date,
+                    locations=locations,
+                    entry=entry,
+                    time_offset=None,
+                )
+                result = result + entry_result
+
+        result = sorted(result, key=lambda e: e.time)
+        return result
+
+    async def do_task(self, entry: TimeEntry) -> None:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
 
-        if 'lights' in entry:
+        locations = set(entry.locations)
+
+        if entry.lights is not None:
             lifx = self._lifx
-            groups = []  # type: List[str]
-            labels = []  # type: List[str]
 
-            action = entry['lights']['action']
-            if 'group' in entry['lights']:
-                groups = [entry['lights']['group']]
-            elif 'label' in entry['lights']:
-                labels = [entry['lights']['label']]
-            else:
-                groups = entry['lights'].get('groups', [])
-                labels = entry['lights'].get('labels', [])
-                assert isinstance(groups, dict)
-                assert isinstance(labels, dict)
-
+            action = entry.lights['action']
             logger.debug(
-                "About to '%s' lights groups=%s labels=%s.",
-                action, groups, labels)
+                "About to '%s' lights locations=%s.",
+                action, locations)
             if action == "flash":
-                await lifx.flash(groups=groups, labels=labels)
+                await lifx.flash(locations=locations)
             elif action == "wake_up":
-                await lifx.wake_up(groups=groups, labels=labels)
+                await lifx.wake_up(locations=locations)
             else:
                 logger.error("Unknown action '%s'.", action)
 
-        if 'message' in entry:
-            logger.debug("About to say '%s'.", entry['message']['text'])
-            await self._audio.say(entry['message']['text'])
+        if entry.message is not None:
+            logger.debug("About to say '%s'.", entry.message['text'])
+            await self._audio.say(
+                locations=locations,
+                text=entry.message['text'])
 
-        if 'music' in entry:
-            logger.debug("About to play '%s'.", entry['music']['play_list'])
-            await self._audio.music_play(entry['music']['play_list'])
+        if entry.music is not None:
+            logger.debug("About to play '%s'.", entry.music['play_list'])
+            await self._audio.music_play(
+                locations=locations,
+                play_list=entry.music['play_list'])
 
     async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())
@@ -243,7 +324,8 @@ class Schedule:
         )
         for entry in schedule:
             logger.debug("Adding entry '%s' to scheduler.", entry)
-            hour, minute = entry['time'].split(':')
+            hour = entry.time.hour
+            minute = entry.time.minute
             scheduler.add_job(
                 self.do_task, 'cron', hour=hour, minute=minute,
                 kwargs={'entry': entry}
