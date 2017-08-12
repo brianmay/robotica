@@ -2,6 +2,8 @@ import asyncio
 import base64
 import datetime
 import logging
+from json import JSONDecodeError
+
 import yaml
 
 from aiohttp import web
@@ -42,8 +44,8 @@ class Http:
         try:
             await self._executor.do_task(request.data)
             return {'status': 'success'}
-        except KeyError as e:
-            print(e)
+        except KeyError:
+            logger.error("Required value missing.")
             raise web.HTTPBadRequest()
 
     def _get_schedule(self, request: web.Request) -> JsonType:
@@ -112,8 +114,13 @@ class Http:
             else:
                 content_type = request.content_type
                 if content_type == "application/json":
-                    request.data = await request.json()
+                    try:
+                        request.data = await request.json()
+                    except JSONDecodeError:
+                        logger.error("Invalid JSON received")
+                        raise web.HTTPBadRequest
                 else:
+                    logger.error("Unsupported content type '%s'.", request.content_type)
                     return web.HTTPNotAcceptable()
 
             for accept in request.headers.getall('ACCEPT', []):
@@ -121,5 +128,6 @@ class Http:
                     data_out = await handler(request)
                     return web.json_response(data_out)
 
+            logger.error("Unsupported ACCEPT header '%s'.", accept)
             return web.HTTPNotAcceptable()
         return middleware

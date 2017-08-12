@@ -14,6 +14,10 @@ Changed
 ~~~~~~~
 * Lights flash at same time as audio.
 
+Fixed
+~~~~~
+* Make http error handling more robost.
+
 
 0.1.15 (2017-07-22)
 -------------------
