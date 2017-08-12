@@ -71,4 +71,5 @@ target/
 audio.yaml
 http.yaml
 lifx.yaml
+executor.yaml
 schedule.yaml

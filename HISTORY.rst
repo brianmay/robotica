@@ -2,6 +2,19 @@
 History
 =======
 
+0.1.16 (UNRELEASED)
+-------------------
+
+Added
+~~~~~
+* Add new REST API to carry out actions.
+* New executor config file.
+
+Changed
+~~~~~~~
+* Lights flash at same time as audio.
+
+
 0.1.15 (2017-07-22)
 -------------------
 

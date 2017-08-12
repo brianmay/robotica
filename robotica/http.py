@@ -8,6 +8,7 @@ from aiohttp import web
 from typing import Any, Awaitable, Callable, Union
 
 from robotica import __version__ as version
+from robotica.executor import Executor
 from robotica.schedule import Schedule
 
 logger = logging.getLogger(__name__)
@@ -19,24 +20,31 @@ Handler = Callable[[int], Awaitable[JsonType]]
 class Http:
     def __init__(
             self, loop: asyncio.AbstractEventLoop,
-            config: Union[None, str],
+            config: str,
+            executor: Executor,
             schedule: Schedule) -> None:
         self._loop = loop
-        if config is not None:
-            with open(config, "r") as file:
-                self._config = yaml.safe_load(file)
-            self._disabled = self._config['disabled']
-            self._username = self._config['username']
-            self._password = self._config['password']
-            self._schedule = schedule
-        else:
-            self._disabled = True
+        with open(config, "r") as file:
+            self._config = yaml.safe_load(file)
+        self._disabled = self._config['disabled']
+        self._username = self._config['username']
+        self._password = self._config['password']
+        self._executor = executor
+        self._schedule = schedule
 
     @staticmethod
     def _get_version(request: web.Request) -> JsonType:
         return {
             'version': version,
         }
+
+    async def _post_execute(self, request: web.Request) -> JsonType:
+        try:
+            await self._executor.do_task(request.data)
+            return {'status': 'success'}
+        except KeyError as e:
+            print(e)
+            raise web.HTTPBadRequest()
 
     def _get_schedule(self, request: web.Request) -> JsonType:
         try:
@@ -52,6 +60,7 @@ class Http:
         """ Setup router to point to our handlers. """
         app = web.Application(middlewares=[self._authorize, self._rest])
         app.router.add_get('/version/', self._get_version)
+        app.router.add_post('/execute/', self._post_execute)
 
         schedule = app.router.add_resource('/schedule/{date}/')
         schedule.add_route('GET', self._get_schedule)

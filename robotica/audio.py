@@ -41,22 +41,36 @@ class Audio:
 
     async def say(self, locations: Set[str], text: str) -> None:
         if self.is_action_required_for_locations(locations):
+            logger.debug("About to say '%s'.", text)
             await self.music_stop(locations)
             await self.play(locations, 'prefix')
             await self._execute(self._say_cmd, {'text': text})
             await self.play(locations, 'repeat')
             await self._execute(self._say_cmd, {'text': text})
             await self.play(locations, 'postfix')
+        else:
+            logger.debug("Wrong location, not saying '%s'.", text)
 
     async def play(self, locations: Set[str], sound: str) -> None:
         sound_file = self._config['sounds'].get(sound)
-        if sound_file and self.is_action_required_for_locations(locations):
+        if not sound_file:
+            return
+        if self.is_action_required_for_locations(locations):
+            logger.debug("About to play sound '%s'.", sound)
             await self._execute(self._play_cmd, {'file': sound_file})
+        else:
+            logger.debug("Wrong location, not playing sound '%s'.", sound)
 
     async def music_play(self, locations: Set[str], play_list: str) -> None:
         if self.is_action_required_for_locations(locations):
+            logger.debug("About to play music '%s'.", play_list)
             await self._execute(self._music_play_cmd, {'play_list': play_list})
+        else:
+            logger.debug("Wrong location, not playing music '%s'.", play_list)
 
     async def music_stop(self, locations: Set[str]) -> None:
         if self.is_action_required_for_locations(locations):
+            logger.debug("About to stop music.")
             await self._execute(self._music_stop_cmd, {})
+        else:
+            logger.debug("Wrong location, not stopping music.")

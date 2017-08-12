@@ -8,8 +8,7 @@ from dateutil.parser import parse
 import yaml
 from apscheduler.schedulers.base import BaseScheduler
 
-from robotica.lifx import Lifx
-from robotica.audio import Audio
+from robotica.executor import Executor
 
 logger = logging.getLogger(__name__)
 
@@ -29,39 +28,33 @@ class TimeEntry:
     def __init__(
             self,
             time: datetime.time,
-            locations: Set[str],
-            lights: Optional[Dict[str, Any]],
-            message: Optional[Dict[str, Any]],
-            music: Optional[Dict[str, Any]]) -> None:
+            execute: Dict[str, Any]) -> None:
         self.time = time
-        self.locations = locations
-        self.lights= lights
-        self.message = message
-        self.music = music
+        self.execute = execute
 
     def to_json(self) -> Dict[str, Any]:
-        return {
+        execute = dict(self.execute)
+        execute['locations'] = list(self.execute['locations'])
+
+        result = {
             'time': str(self.time),
-            'locations': list(self.locations),
-            'lights': self.lights,
-            'message': self.message,
-            'music': self.music,
+            'execute': execute,
         }
+        return result
 
     def __str__(self) -> str:
         return "schedule@%s" % self.time
 
     def __repr__(self) -> str:
-        return "<schedule %s %s %s %s %s>" % (
-            self.time, self.locations, self.lights, self.message, self.music)
+        return "<schedule %s %s>" % (
+            self.time, self.execute)
 
 
 class Schedule:
-    def __init__(self, schedule_path: str, lifx: Lifx, audio: Audio) -> None:
+    def __init__(self, schedule_path: str, executor: Executor) -> None:
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
-        self._lifx = lifx
-        self._audio = audio
+        self._executor = executor
 
     def start(self) -> None:
         scheduler = AsyncIOScheduler()
@@ -79,8 +72,10 @@ class Schedule:
         result = []  # type: List[TimeEntry]
 
         locations = locations | set(entry.get('locations', []))
+        execute = dict(entry)
+        execute['locations'] = locations
 
-        time = entry['time']
+        time = execute['time']
         hours, minutes = map(int, time.split(':'))
         parsed_time = datetime.time(hour=hours, minute=minutes)
 
@@ -97,8 +92,8 @@ class Schedule:
 
             parsed_time = required_datetime.time()
 
-        if 'template' in entry:
-            template_name = entry['template']
+        if 'template' in execute:
+            template_name = execute['template']
             template_result = self._expand_template(
                 date=date,
                 time=parsed_time,
@@ -106,31 +101,12 @@ class Schedule:
                 template_name=template_name,
             )
             result = result + template_result
+            del execute['template']
 
-        lights = None
-        message = None
-        music = None
-
-        if self._lifx.is_action_required_for_locations(locations):
-
-            if 'lights' in entry:
-                lights = entry['lights']
-
-        if self._audio.is_action_required_for_locations(locations):
-
-            if 'message' in entry:
-                message = entry['message']
-
-            if 'music' in entry:
-                music = entry['music']
-
-        if any([lights, message, music]):
+        if self._executor.is_action_required_for_locations(execute):
             result.append(TimeEntry(
                 time=parsed_time,
-                locations=locations,
-                lights=lights,
-                message=message,
-                music=music,
+                execute=execute,
             ))
 
         return result
@@ -280,34 +256,7 @@ class Schedule:
 
     async def do_task(self, entry: TimeEntry) -> None:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
-
-        locations = set(entry.locations)
-
-        if entry.lights is not None:
-            lifx = self._lifx
-
-            action = entry.lights['action']
-            logger.debug(
-                "About to '%s' lights locations=%s.",
-                action, locations)
-            if action == "flash":
-                await lifx.flash(locations=locations)
-            elif action == "wake_up":
-                await lifx.wake_up(locations=locations)
-            else:
-                logger.error("Unknown action '%s'.", action)
-
-        if entry.message is not None:
-            logger.debug("About to say '%s'.", entry.message['text'])
-            await self._audio.say(
-                locations=locations,
-                text=entry.message['text'])
-
-        if entry.music is not None:
-            logger.debug("About to play '%s'.", entry.music['play_list'])
-            await self._audio.music_play(
-                locations=locations,
-                play_list=entry.music['play_list'])
+        await self._executor.do_task(entry.execute)
 
     async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())

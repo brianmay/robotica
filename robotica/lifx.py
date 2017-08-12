@@ -9,14 +9,11 @@ logger = logging.getLogger(__name__)
 
 
 class Lifx:
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: Union[None, str]) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: str) -> None:
         self._loop = loop
-        if config is not None:
-            with open(config, "r") as file:
-                self._config = yaml.safe_load(file)
-            self._disabled = self._config['disabled']
-        else:
-            self._disabled = True
+        with open(config, "r") as file:
+            self._config = yaml.safe_load(file)
+        self._disabled = self._config['disabled']
         self._lights = Lights(loop=self._loop)
 
     def start(self) -> None:
