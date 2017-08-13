@@ -74,8 +74,9 @@ class Schedule:
         locations = locations | set(entry.get('locations', []))
         execute = dict(entry)
         execute['locations'] = locations
+        del execute['time']
 
-        time = execute['time']
+        time = entry['time']
         hours, minutes = map(int, time.split(':'))
         parsed_time = datetime.time(hour=hours, minute=minutes)
 
