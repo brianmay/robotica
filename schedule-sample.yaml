@@ -4,65 +4,75 @@ template:
     schedule:
 
     - time: '00:00'
-      lights:
-        action: wake_up
-      message:
-        text: Time to wake up.
-      music:
-        play_list: wake_up
+      actions:
+      - lights:
+          action: wake_up
+        message:
+          text: Time to wake up.
+        music:
+          play_list: wake_up
 
     - time: '00:30'
-      message:
-        text: Time to wake up RIGHT NOW.
+      actions:
+      - message:
+          text: Time to wake up RIGHT NOW.
 
     - time: '00:35'
-      message:
-        text: Time to eat breakfast.
+      actions:
+      - message:
+          text: Time to eat breakfast.
 
     - time: '00:45'
-      lights:
-        action: flash
-      message:
-        text: Time to clean your teeth.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: Time to clean your teeth.
 
     - time: '00:55'
-      lights:
-        action: flash
-      message:
-        text: It is time to get into the Tesla and fasten your seat belts ready for take off.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to get into the Tesla and fasten your seat belts ready for take off.
 
     - time: '01:00'
-      lights:
-        action: flash
-      message:
-        text: It is time to take off in the Tesla. You should already be in the car.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to take off in the Tesla. You should already be in the car.
 
   bed:
     schedule:
 
     - time: '00:00'
-      lights:
-        action: flash
-      message:
-        text: It is time to get tired for bed and put on pajamas.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to get tired for bed and put on pajamas.
 
     - time: '00:15'
-      lights:
-        action: flash
-      message:
-        text: It is time to clean your teeth in bed and read.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to clean your teeth in bed and read.
 
     - time: '00:30'
-      lights:
-        action: flash
-      message:
-        text: It is time to go to the toilet in bed and talk.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to go to the toilet in bed and talk.
 
     - time: '00:45'
-      lights:
-        action: flash
-      message:
-        text: It is time to go to the toilet and sleep.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to go to the toilet and sleep.
 
 day:
   everyday:
@@ -75,38 +85,45 @@ day:
     schedule:
 
     - time: '17:55'
-      message:
-        text: It is time to go to your save point.
+      actions:
+      - message:
+          text: It is time to go to your save point.
 
     - time: '18:00'
-      message:
-        text: It is time to save the game.
+      actions:
+      - message:
+          text: It is time to save the game.
 
     - time: '18:05'
-      message:
-        text: It is time to turn off all electronic entertainment devices.
+      actions:
+      - message:
+          text: It is time to turn off all electronic entertainment devices.
 
     - time: '18:10'
-      lights:
-        action: flash
-      message:
-        text: It is time to pack up.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to pack up.
 
     - time: '18:20'
-      lights:
-        action: flash
-      message:
-        text: It is time to make lunch for tomorrow.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to make lunch for tomorrow.
 
     - time: '18:25'
-      lights:
-        action: flash
-      message:
-        text: It is time to set the table.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to set the table.
 
     - time: '18:30'
-      message:
-        text: It is time to eat tea.
+      actions:
+      - message:
+          text: It is time to eat tea.
 
     - time: '19:45'
       template: bed
@@ -146,8 +163,9 @@ day:
       - Sunday
     schedule:
     - time: '19:15'
-      lights:
-        action: flash
-      message:
-        text: It is time to have a bath in the shower.
+      actions:
+      - lights:
+          action: flash
+        message:
+          text: It is time to have a bath in the shower.
 

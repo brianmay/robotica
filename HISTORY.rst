@@ -56,6 +56,14 @@ Fixed
 * Ignore mypy cache directory.
 
 
+0.1.13 (UNRELEASED)
+-------------------
+
+Added
+~~~~~
+* Ability to specify list of tasks.
+
+
 0.1.12 (2017-07-04)
 -------------------
 

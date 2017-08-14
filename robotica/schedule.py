@@ -28,26 +28,25 @@ class TimeEntry:
     def __init__(
             self,
             time: datetime.time,
-            action: Action) -> None:
+            locations: Set[str],
+            actions: List[Action]) -> None:
         self.time = time
-        self.action = action
+        self.locations = locations
+        self.actions = actions
 
     def to_json(self) -> Dict[str, Any]:
-        action = dict(self.action)
-        action['locations'] = list(self.action['locations'])
-
-        result = {
+        return {
             'time': str(self.time),
-            'action': action,
+            'locations': list(self.locations),
+            'actions': self.actions,
         }
-        return result
 
     def __str__(self) -> str:
         return "schedule@%s" % self.time
 
     def __repr__(self) -> str:
-        return "<schedule %s %s>" % (
-            self.time, self.action)
+        return "<schedule %s %s %s>" % (
+            self.time, self.locations, self.actions)
 
 
 class Schedule:
@@ -72,9 +71,7 @@ class Schedule:
         result = []  # type: List[TimeEntry]
 
         locations = locations | set(entry.get('locations', []))
-        action = dict(entry)
-        action['locations'] = locations
-        del action['time']
+        actions = list(entry.get('actions', []))
 
         time = entry['time']
         hours, minutes = map(int, time.split(':'))
@@ -93,8 +90,8 @@ class Schedule:
 
             parsed_time = required_datetime.time()
 
-        if 'template' in action:
-            template_name = action['template']
+        if 'template' in entry:
+            template_name = entry['template']
             template_result = self._expand_template(
                 date=date,
                 time=parsed_time,
@@ -102,12 +99,19 @@ class Schedule:
                 template_name=template_name,
             )
             result = result + template_result
-            del action['template']
 
-        if self._executor.is_action_required_for_locations(action):
+        actions = [
+            action
+            for action in actions
+            if self._executor.is_action_required_for_locations(
+                locations, action)
+        ]
+
+        if len(actions) > 0:
             result.append(TimeEntry(
                 time=parsed_time,
-                action=action,
+                locations=locations,
+                actions=actions,
             ))
 
         return result
@@ -257,7 +261,7 @@ class Schedule:
 
     async def do_task(self, entry: TimeEntry) -> None:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
-        await self._executor.do_action(entry.action)
+        await self._executor.do_actions(entry.locations, entry.actions)
 
     async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())
