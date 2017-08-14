@@ -42,7 +42,7 @@ class Http:
 
     async def _post_execute(self, request: web.Request) -> JsonType:
         try:
-            await self._executor.do_task(request.data)
+            await self._executor.do_action(request.data)
             return {'status': 'success'}
         except KeyError:
             logger.error("Required value missing.")

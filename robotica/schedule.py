@@ -28,17 +28,17 @@ class TimeEntry:
     def __init__(
             self,
             time: datetime.time,
-            execute: Dict[str, Any]) -> None:
+            action: Dict[str, Any]) -> None:
         self.time = time
-        self.execute = execute
+        self.action = action
 
     def to_json(self) -> Dict[str, Any]:
-        execute = dict(self.execute)
-        execute['locations'] = list(self.execute['locations'])
+        action = dict(self.action)
+        action['locations'] = list(self.action['locations'])
 
         result = {
             'time': str(self.time),
-            'execute': execute,
+            'action': action,
         }
         return result
 
@@ -47,7 +47,7 @@ class TimeEntry:
 
     def __repr__(self) -> str:
         return "<schedule %s %s>" % (
-            self.time, self.execute)
+            self.time, self.action)
 
 
 class Schedule:
@@ -72,9 +72,9 @@ class Schedule:
         result = []  # type: List[TimeEntry]
 
         locations = locations | set(entry.get('locations', []))
-        execute = dict(entry)
-        execute['locations'] = locations
-        del execute['time']
+        action = dict(entry)
+        action['locations'] = locations
+        del action['time']
 
         time = entry['time']
         hours, minutes = map(int, time.split(':'))
@@ -93,8 +93,8 @@ class Schedule:
 
             parsed_time = required_datetime.time()
 
-        if 'template' in execute:
-            template_name = execute['template']
+        if 'template' in action:
+            template_name = action['template']
             template_result = self._expand_template(
                 date=date,
                 time=parsed_time,
@@ -102,12 +102,12 @@ class Schedule:
                 template_name=template_name,
             )
             result = result + template_result
-            del execute['template']
+            del action['template']
 
-        if self._executor.is_action_required_for_locations(execute):
+        if self._executor.is_action_required_for_locations(action):
             result.append(TimeEntry(
                 time=parsed_time,
-                execute=execute,
+                action=action,
             ))
 
         return result
@@ -257,7 +257,7 @@ class Schedule:
 
     async def do_task(self, entry: TimeEntry) -> None:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
-        await self._executor.do_task(entry.execute)
+        await self._executor.do_action(entry.action)
 
     async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())

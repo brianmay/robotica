@@ -73,12 +73,11 @@ class Executor:
                 locations=locations,
                 play_list=music['play_list'])
 
-
-    async def do_task(self, execute: Dict[str, Any]) -> None:
-        locations = set(execute['locations'])
+    async def do_action(self, action: Dict[str, Any]) -> None:
+        locations = set(action['locations'])
 
         await asyncio.gather(
-            self._do_lights(locations, execute),
-            self._do_audio(locations, execute),
+            self._do_lights(locations, action),
+            self._do_audio(locations, action),
             loop=self._loop
         )
