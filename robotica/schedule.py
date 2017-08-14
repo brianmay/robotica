@@ -8,7 +8,7 @@ from dateutil.parser import parse
 import yaml
 from apscheduler.schedulers.base import BaseScheduler
 
-from robotica.executor import Executor
+from robotica.executor import Executor, Action
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class TimeEntry:
     def __init__(
             self,
             time: datetime.time,
-            action: Dict[str, Any]) -> None:
+            action: Action) -> None:
         self.time = time
         self.action = action
 

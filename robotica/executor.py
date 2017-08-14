@@ -11,6 +11,9 @@ from robotica.audio import Audio
 logger = logging.getLogger(__name__)
 
 
+Action = Dict[str, Any]
+
+
 class Executor:
     def __init__(
             self, loop: asyncio.AbstractEventLoop,
@@ -21,7 +24,7 @@ class Executor:
         self._lifx = lifx
         self._audio = audio
 
-    def is_action_required_for_locations(self, execute: Dict[str, Any]) -> bool:
+    def is_action_required_for_locations(self, execute: Action) -> bool:
         locations = set(execute['locations'])
 
         lights = None
