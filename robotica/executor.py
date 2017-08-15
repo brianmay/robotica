@@ -25,23 +25,23 @@ class Executor:
         self._audio = audio
 
     def is_action_required_for_locations(
-            self, locations: Set[str], execute: Action) -> bool:
+            self, locations: Set[str], action: Action) -> bool:
         lights = None
         message = None
         music = None
 
         if self._lifx.is_action_required_for_locations(locations):
 
-            if 'lights' in execute:
-                lights = execute['lights']
+            if 'lights' in action:
+                lights = action['lights']
 
         if self._audio.is_action_required_for_locations(locations):
 
-            if 'message' in execute:
-                message = execute['message']
+            if 'message' in action:
+                message = action['message']
 
-            if 'music' in execute:
-                music = execute['music']
+            if 'music' in action:
+                music = action['music']
 
         return any([lights, message, music])
 
