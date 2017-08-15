@@ -18,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 
 @click.command()
-@click.option('--audio', default="audio-sample.yaml", help='Path to audio.')
-@click.option('--lifx', default="lifx-sample.yaml", help='Path to LIFX config.')
-@click.option('--executor', default="executor-sample.yaml", help='Path to executor config.')
-@click.option('--schedule', default="schedule-sample.yaml", help='Path to schedule config.')
-@click.option('--http', default="http-sample.yaml", help='Path to HTTP config.')
+@click.option('--audio', default="config/audio.yaml", help='Path to audio config.')
+@click.option('--lifx', default="config/lifx.yaml", help='Path to LIFX config.')
+@click.option('--executor', default="config/executor.yaml", help='Path to executor config.')
+@click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config.')
+@click.option('--http', default="config/http.yaml", help='Path to HTTP config.')
 @click_log.simple_verbosity_option()
 @click_log.init()
 def main(audio: str, lifx: str, executor: str, schedule: str, http: str) -> None:

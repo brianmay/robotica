@@ -2,6 +2,18 @@
 History
 =======
 
+0.1.17 (UNRELEASED)
+-------------------
+
+Added
+~~~~~
+* Ability to specify list of tasks.
+
+Changed
+~~~~~~~
+* Move configuration to config directory and remove "-sample" substring.
+
+
 0.1.16 (2017-08-13)
 -------------------
 
@@ -54,14 +66,6 @@ Fixed
 * Update sample schedule file.
 * Clear playlist before adding new songs.
 * Ignore mypy cache directory.
-
-
-0.1.13 (UNRELEASED)
--------------------
-
-Added
-~~~~~
-* Ability to specify list of tasks.
 
 
 0.1.12 (2017-07-04)

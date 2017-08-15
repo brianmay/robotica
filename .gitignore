@@ -66,10 +66,3 @@ target/
 
 # mypy
 /.mypy_cache/
-
-# Other
-audio.yaml
-http.yaml
-lifx.yaml
-executor.yaml
-schedule.yaml
