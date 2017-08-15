@@ -1,0 +1,3 @@
+from typing import Any, TextIO
+
+def safe_load(stream: TextIO) -> Any: ...
