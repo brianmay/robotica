@@ -76,7 +76,6 @@ class Executor:
                 play_list=music['play_list'])
 
     async def do_action(self, locations: Set[str], action: Action) -> None:
-        print(locations, action)
         if self.is_action_required_for_locations(locations, action):
             await asyncio.gather(
                 self._do_lights(locations, action),
