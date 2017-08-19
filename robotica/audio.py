@@ -16,16 +16,19 @@ class Audio:
         with open(config, "r") as file:
             self._config = yaml.safe_load(file)
         self._disabled = self._config['disabled']
-        self._say_cmd = self._config.get('say_cmd') or []
-        self._play_cmd = self._config.get('play_cmd') or []
-        self._music_play_cmd = self._config.get('music_play_cmd') or []
-        self._music_stop_cmd = self._config.get('music_stop_cmd') or []
         self._location = self._config.get('location')
 
     def is_action_required_for_locations(self, locations: Set[str]) -> bool:
         if self._disabled:
             return False
-        return self._location in locations
+
+        good_locations = [
+            location
+            for location in locations
+            if location in self._location
+        ]
+
+        return len(good_locations) > 0
 
     @staticmethod
     async def _execute(cmd_list: List[str], params: Dict[str, str]) -> None:
@@ -39,38 +42,79 @@ class Audio:
             if result != 0:
                 logger.info("Command %s returned %d", split, result)
 
-    async def say(self, locations: Set[str], text: str) -> None:
-        if self.is_action_required_for_locations(locations):
-            logger.debug("About to say '%s'.", text)
-            await self.music_stop(locations)
-            await self.play(locations, 'prefix')
-            await self._execute(self._say_cmd, {'text': text})
-            await self.play(locations, 'repeat')
-            await self._execute(self._say_cmd, {'text': text})
-            await self.play(locations, 'postfix')
-        else:
-            logger.debug("Wrong location, not saying '%s'.", text)
+    async def _say(self, location: str, text: str) -> None:
+        logger.debug("%s: About to consider say '%s'.", location, text)
+        location_config = self._location.get(location, {})
+        say_cmd = location_config.get('say_cmd', [])
+        if len(say_cmd) == 0:
+            return
+        logger.debug("%s: About to say '%s'.", location, text)
+        await self._music_stop(location)
+        await self._play(location, 'prefix')
+        await self._execute(say_cmd, {'text': text})
+        await self._play(location, 'repeat')
+        await self._execute(say_cmd, {'text': text})
+        await self._play(location, 'postfix')
 
-    async def play(self, locations: Set[str], sound: str) -> None:
+    async def say(self, locations: Set[str], text: str) -> None:
+        if self._disabled:
+            return
+        coros = [
+            self._say(location, text)
+            for location in locations
+        ]
+        await asyncio.gather(*coros, loop=self._loop)
+
+    async def _play(self, location: str, sound: str) -> None:
         sound_file = self._config['sounds'].get(sound)
         if not sound_file:
             return
-        if self.is_action_required_for_locations(locations):
-            logger.debug("About to play sound '%s'.", sound)
-            await self._execute(self._play_cmd, {'file': sound_file})
-        else:
-            logger.debug("Wrong location, not playing sound '%s'.", sound)
+        location_config = self._location.get(location, {})
+        play_cmd = location_config.get('play_cmd', [])
+        if len(play_cmd) == 0:
+            return
+        logger.debug("%s: About to play sound '%s'.", location, sound_file)
+        await self._execute(play_cmd, {'file': sound_file})
+
+    async def play(self, locations: Set[str], sound: str) -> None:
+        if self._disabled:
+            return
+        coros = [
+            self._play(location, sound)
+            for location in locations
+        ]
+        await asyncio.gather(*coros, loop=self._loop)
+
+    async def _music_play(self, location: str, play_list: str) -> None:
+        location_config = self._location.get(location, {})
+        music_play_cmd = location_config.get('music_play_cmd', [])
+        if len(music_play_cmd) == 0:
+            return
+        logger.debug("%s: About to play music '%s'.", location, play_list)
+        await self._execute(music_play_cmd, {'play_list': play_list})
 
     async def music_play(self, locations: Set[str], play_list: str) -> None:
-        if self.is_action_required_for_locations(locations):
-            logger.debug("About to play music '%s'.", play_list)
-            await self._execute(self._music_play_cmd, {'play_list': play_list})
-        else:
-            logger.debug("Wrong location, not playing music '%s'.", play_list)
+        if self._disabled:
+            return
+        coros = [
+            self._music_play(location, play_list)
+            for location in locations
+        ]
+        await asyncio.gather(*coros, loop=self._loop)
+
+    async def _music_stop(self, location: str) -> None:
+        location_config = self._location.get(location, {})
+        music_stop_cmd = location_config.get('music_stop_cmd', [])
+        if len(music_stop_cmd) == 0:
+            return
+        logger.debug("%s: About to stop music.", location)
+        await self._execute(music_stop_cmd, {})
 
     async def music_stop(self, locations: Set[str]) -> None:
-        if self.is_action_required_for_locations(locations):
-            logger.debug("About to stop music.")
-            await self._execute(self._music_stop_cmd, {})
-        else:
-            logger.debug("Wrong location, not stopping music.")
+        if self._disabled:
+            return
+        coros = [
+            self._music_stop(location)
+            for location in locations
+        ]
+        await asyncio.gather(*coros, loop=self._loop)

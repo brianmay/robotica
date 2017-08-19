@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.18 (UNRELEASED)
+-------------------
+
+Added
+~~~~~
+* Support multiple audio destinations per daemon.
+
+
 0.1.17 (2017-09-19)
 -------------------
 
