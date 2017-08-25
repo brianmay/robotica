@@ -41,12 +41,16 @@ class Http:
         }
 
     async def _post_execute(self, request: web.Request) -> JsonType:
+        data = request.data
         try:
-            await self._executor.do_actions(request.data['locations'], request.data['actions'])
-            return {'status': 'success'}
+            locations = data['locations']
+            actions = data['actions']
         except KeyError:
             logger.error("Required value missing.")
             raise web.HTTPBadRequest()
+
+        await self._executor.do_actions(locations, actions)
+        return {'status': 'success'}
 
     def _get_schedule(self, request: web.Request) -> JsonType:
         try:
