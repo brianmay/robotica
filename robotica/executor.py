@@ -1,12 +1,12 @@
 """ Robotica Schedule. """
 import asyncio
-from typing import Dict, Any, Set, List  # NOQA
 import logging
+from typing import Dict, Any, Set, List  # NOQA
 
 import yaml
 
-from robotica.lifx import Lifx
-from robotica.audio import Audio
+from robotica.outputs.audio import Audio
+from robotica.outputs.lifx import Lifx
 
 logger = logging.getLogger(__name__)
 

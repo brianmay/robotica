@@ -8,12 +8,11 @@ import click
 import click_log
 
 from robotica.executor import Executor
-from robotica.lifx import Lifx
-from robotica.audio import Audio
-from robotica.http import Http
-from robotica.mqtt import Mqtt
+from robotica.inputs.http import Http
+from robotica.inputs.mqtt import Mqtt
+from robotica.outputs.audio import Audio
+from robotica.outputs.lifx import Lifx
 from robotica.schedule import Schedule
-
 
 logger = logging.getLogger('robotica')
 click_log.basic_config(logger)
@@ -33,29 +32,29 @@ def main(
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
-    lifx_obj = Lifx(loop, lifx)
-    lifx_obj.start()
+    lifx_output = Lifx(loop, lifx)
+    lifx_output.start()
 
-    audio_obj = Audio(loop, audio)
+    audio_output = Audio(loop, audio)
 
-    executor_obj = Executor(loop, executor, lifx_obj, audio_obj)
+    executor_obj = Executor(loop, executor, lifx_output, audio_output)
 
     schedule_obj = Schedule(schedule, executor_obj)
     schedule_obj.start()
 
-    http_obj = Http(loop, http, executor_obj, schedule_obj)
-    http_obj.start()
+    http_input = Http(loop, http, executor_obj, schedule_obj)
+    http_input.start()
 
-    mqtt_obj = Mqtt(loop, mqtt, executor_obj, schedule_obj)
-    mqtt_obj.start()
+    mqtt_input = Mqtt(loop, mqtt, executor_obj, schedule_obj)
+    mqtt_input.start()
 
     try:
         loop.run_forever()
     finally:
-        mqtt_obj.stop()
-        http_obj.stop()
+        mqtt_input.stop()
+        http_input.stop()
         schedule_obj.stop()
-        lifx_obj.stop()
+        lifx_output.stop()
         pending = asyncio.Task.all_tasks()
         for p in pending:
             p.cancel()
