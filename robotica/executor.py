@@ -23,6 +23,7 @@ class Executor:
             self._config = yaml.safe_load(file)
         self._lifx = lifx
         self._audio = audio
+        self._lock = asyncio.Lock()
 
     def is_action_required_for_locations(
             self, locations: Set[str], action: Action) -> bool:
@@ -77,11 +78,12 @@ class Executor:
 
     async def do_action(self, locations: Set[str], action: Action) -> None:
         if self.is_action_required_for_locations(locations, action):
-            await asyncio.gather(
-                self._do_lights(locations, action),
-                self._do_audio(locations, action),
-                loop=self._loop
-            )
+            with await self._lock:
+                await asyncio.gather(
+                    self._do_lights(locations, action),
+                    self._do_audio(locations, action),
+                    loop=self._loop
+                )
 
     async def do_actions(self, locations: Set[str], actions: List[Action]) -> None:
         for action in actions:

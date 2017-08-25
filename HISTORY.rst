@@ -9,6 +9,10 @@ Added
 ~~~~~
 * MQTT support for execute request/response.
 
+Changed
+~~~~~~~
+* Execute one task at a time.
+
 
 0.1.18 (2017-09-20)
 -------------------
