@@ -11,6 +11,7 @@ from robotica.executor import Executor
 from robotica.lifx import Lifx
 from robotica.audio import Audio
 from robotica.http import Http
+from robotica.mqtt import Mqtt
 from robotica.schedule import Schedule
 
 
@@ -23,9 +24,12 @@ logger = logging.getLogger(__name__)
 @click.option('--executor', default="config/executor.yaml", help='Path to executor config.')
 @click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config.')
 @click.option('--http', default="config/http.yaml", help='Path to HTTP config.')
+@click.option('--mqtt', default="config/mqtt.yaml", help='Path to MQTT config.')
 @click_log.simple_verbosity_option()
 @click_log.init()
-def main(audio: str, lifx: str, executor: str, schedule: str, http: str) -> None:
+def main(
+        audio: str, lifx: str, executor: str,
+        schedule: str, http: str, mqtt: str) -> None:
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
 
@@ -42,9 +46,13 @@ def main(audio: str, lifx: str, executor: str, schedule: str, http: str) -> None
     http_obj = Http(loop, http, executor_obj, schedule_obj)
     http_obj.start()
 
+    mqtt_obj = Mqtt(loop, mqtt, executor_obj, schedule_obj)
+    mqtt_obj.start()
+
     try:
         loop.run_forever()
     finally:
+        mqtt_obj.stop()
         http_obj.stop()
         schedule_obj.stop()
         lifx_obj.stop()

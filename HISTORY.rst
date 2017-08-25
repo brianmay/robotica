@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.19 (UNRELEASED)
+-------------------
+
+Added
+~~~~~
+* MQTT support for execute request/response.
+
+
 0.1.18 (2017-09-20)
 -------------------
 
