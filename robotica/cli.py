@@ -15,7 +15,8 @@ from robotica.mqtt import Mqtt
 from robotica.schedule import Schedule
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('robotica')
+click_log.basic_config(logger)
 
 
 @click.command()
@@ -25,8 +26,7 @@ logger = logging.getLogger(__name__)
 @click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config.')
 @click.option('--http', default="config/http.yaml", help='Path to HTTP config.')
 @click.option('--mqtt', default="config/mqtt.yaml", help='Path to MQTT config.')
-@click_log.simple_verbosity_option()
-@click_log.init()
+@click_log.simple_verbosity_option(logger)
 def main(
         audio: str, lifx: str, executor: str,
         schedule: str, http: str, mqtt: str) -> None:
@@ -56,4 +56,11 @@ def main(
         http_obj.stop()
         schedule_obj.stop()
         lifx_obj.stop()
+        pending = asyncio.Task.all_tasks()
+        for p in pending:
+            p.cancel()
+            try:
+                loop.run_until_complete(p)
+            except asyncio.CancelledError:
+                pass
         loop.close()
