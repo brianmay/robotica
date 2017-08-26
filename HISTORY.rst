@@ -2,7 +2,7 @@
 History
 =======
 
-0.1.19 (UNRELEASED)
+0.1.19 (2017-08-26)
 -------------------
 
 Added
@@ -16,7 +16,7 @@ Changed
 * Refactor input/output code.
 
 
-0.1.18 (2017-09-20)
+0.1.18 (2017-08-20)
 -------------------
 
 Added
@@ -24,7 +24,7 @@ Added
 * Support multiple audio destinations per daemon.
 
 
-0.1.17 (2017-09-19)
+0.1.17 (2017-08-19)
 -------------------
 
 Added
