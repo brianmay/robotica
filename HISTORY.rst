@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.22 (2017-08-26)
+-------------------
+
+Fixed
+~~~~~
+* Various bugs fixed.
+
+
 0.1.21 (2017-08-26)
 -------------------
 The "I Accidentally incremented the version two times release".

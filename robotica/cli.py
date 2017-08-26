@@ -40,7 +40,7 @@ def main(
 
     audio_output = AudioOutput(loop, audio)
 
-    mqtt_output = MqttOutput(loop, audio, client)
+    mqtt_output = MqttOutput(loop, mqtt, client)
 
     executor_obj = Executor(loop, executor)
     executor_obj.add_output(audio_output)

@@ -72,6 +72,8 @@ class MqttOutput(Output):
             logger.exception("The client operation failed.")
 
     async def _say(self, location: str, text: str) -> None:
+        if location not in self._location:
+            return
         logger.debug("%s: About to say '%s' (MQTT).", location, text)
         await self._execute(
             '/say/%s/' % location,
@@ -88,6 +90,8 @@ class MqttOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _play(self, location: str, sound: str) -> None:
+        if location not in self._location:
+            return
         logger.debug("%s: About to play sound '%s' (MQTT).", location, sound)
         await self._execute(
             '/play/%s/' % location,
@@ -104,6 +108,8 @@ class MqttOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_play(self, location: str, play_list: str) -> None:
+        if location not in self._location:
+            return
         logger.debug("%s: About to play music '%s' (MQTT).", location, play_list)
         await self._execute(
             '/play_music/%s/' % location,
@@ -120,6 +126,8 @@ class MqttOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_stop(self, location: str) -> None:
+        if location not in self._location:
+            return
         logger.debug("%s: About to stop music (MQTT).", location)
         await self._execute(
             '/play_music/%s/' % location,
