@@ -2,8 +2,9 @@
 History
 =======
 
-0.1.20 (2017-08-26)
+0.1.21 (2017-08-26)
 -------------------
+The "I Accidentally incremented the version two times release".
 
 Fixed
 ~~~~~
