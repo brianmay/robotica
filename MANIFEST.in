@@ -10,6 +10,10 @@ recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
+recursive-include config *.yaml
+recursive-include robotica *.py
+recursive-include yaml *.pyi
+
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
 recursive-exclude docs/_build *
 
