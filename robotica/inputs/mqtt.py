@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import platform
 
 import yaml
 
@@ -50,6 +51,7 @@ class MqttInput(Input):
     async def _execute(self, data: JsonType) -> None:
 
         reply_topic = data.get('reply_topic', None)
+        server = platform.node()
 
         async def reply(data: JsonType) -> None:
             client = self._client
@@ -62,16 +64,16 @@ class MqttInput(Input):
             actions = data['actions']
         except KeyError:
             logger.error("Required value missing.")
-            await reply({'status': 'error'})
+            await reply({'status': 'error', 'server': server, })
             return
 
         try:
-            await reply({'status': 'processing'})
+            await reply({'status': 'processing', 'server': server, })
             await self._executor.do_actions(locations, actions)
-            await reply({'status': 'success'})
+            await reply({'status': 'success', 'server': server, })
         except Exception as e:
             logger.exception("Error in _execute")
-            await reply({'status': 'error'})
+            await reply({'status': 'error', 'server': server, })
 
         return
 
