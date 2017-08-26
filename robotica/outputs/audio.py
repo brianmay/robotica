@@ -19,7 +19,7 @@ class AudioOutput(Output):
         with open(config, "r") as file:
             self._config = yaml.safe_load(file)
         self._disabled = self._config['disabled']
-        self._location = self._config.get('location')
+        self._location = self._config.get('location', {})
 
     def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
         if self._disabled:

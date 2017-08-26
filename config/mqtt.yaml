@@ -1,4 +1,4 @@
 disabled: false
 broker_url: mqtt://localhost
 location:
-- Brian
+    Brian:

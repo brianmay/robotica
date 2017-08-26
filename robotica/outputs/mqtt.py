@@ -20,7 +20,7 @@ class MqttOutput(Output):
         with open(config, "r") as file:
             self._config = yaml.safe_load(file)
         self._disabled = self._config['disabled']
-        self._location = self._config.get('location')
+        self._location = self._config.get('location', {})
         self._client = client  # type: MQTTClient
 
     def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
@@ -130,7 +130,7 @@ class MqttOutput(Output):
             return
         logger.debug("%s: About to stop music (MQTT).", location)
         await self._execute(
-            '/play_music/%s/' % location,
+            '/stop_music/%s/' % location,
             None,
         )
 

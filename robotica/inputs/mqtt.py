@@ -41,7 +41,7 @@ class MqttInput(Input):
 
     def stop(self) -> None:
         if not self._disabled and self._task is not None:
-            self._client.unsubscribe('/execute')
+            self._client.unsubscribe('/execute/')
             self._task.cancel()
             try:
                 self._loop.run_until_complete(self._task)
