@@ -5,10 +5,13 @@ from typing import List, Union, Set
 import yaml
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
 
+from robotica.outputs import Output
+from robotica.types import Action
+
 logger = logging.getLogger(__name__)
 
 
-class Lifx:
+class LifxOutput(Output):
     def __init__(self, loop: asyncio.AbstractEventLoop, config: str) -> None:
         self._loop = loop
         with open(config, "r") as file:
@@ -33,9 +36,27 @@ class Lifx:
             labels = labels | set(self._config["location"].get(location, []))
         return labels
 
-    def is_action_required_for_locations(self, locations: Set[str]) -> bool:
+    def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
         labels = self._get_labels_for_locations(locations)
-        return len(labels) > 0
+        if len(labels) == 0:
+            return False
+
+        if 'lights' in action:
+            return True
+
+        return False
+
+    async def execute(self, locations: Set[str], action: Action) -> None:
+        if 'lights' in action:
+            lights = action['lights']
+
+            lights_action = lights['action']
+            if lights_action == "flash":
+                await self.flash(locations=locations)
+            elif lights_action == "wake_up":
+                await self.wake_up(locations=locations)
+            else:
+                logger.error("Unknown action '%s'.", action)
 
     def _get_lights_from_locations(self, locations: Set[str]) -> Lights:
         labels = self._get_labels_for_locations(locations)

@@ -1,25 +1,27 @@
 """ Give verbal message. """
 import asyncio
-import logging
-import shlex
-from typing import Dict, List, Set
+import json
 
+from hbmqtt.client import MQTTClient, ClientException, QOS_0
+import logging
+from typing import Set
 import yaml
 
 from robotica.outputs import Output
-from robotica.types import Action
+from robotica.types import JsonType, Action
 
 logger = logging.getLogger(__name__)
 
 
-class AudioOutput(Output):
+class MqttOutput(Output):
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: str) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: str, client: MQTTClient) -> None:
         self._loop = loop
         with open(config, "r") as file:
             self._config = yaml.safe_load(file)
         self._disabled = self._config['disabled']
         self._location = self._config.get('location')
+        self._client = client  # type: MQTTClient
 
     def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
         if self._disabled:
@@ -57,31 +59,24 @@ class AudioOutput(Output):
                 locations=locations,
                 play_list=music['play_list'])
 
-    @staticmethod
-    async def _execute(cmd_list: List[str], params: Dict[str, str]) -> None:
-        for cmd in cmd_list:
-            split = [
-                value.format(**params) for value in shlex.split(cmd)
-            ]
-            logger.info("About to execute %s", split)
-            process = await asyncio.create_subprocess_exec(*split)
-            result = await process.wait()
-            if result != 0:
-                logger.info("Command %s returned %d", split, result)
+    async def _execute(self, topic: str, data: JsonType) -> None:
+        logger.debug("About to publish %r to %s" % (data, topic))
+        raw_data = json.dumps(data).encode('UTF8')
+        try:
+            await self._client.publish(
+                topic,
+                raw_data,
+                qos=QOS_0,
+            )
+        except ClientException:
+            logger.exception("The client operation failed.")
 
     async def _say(self, location: str, text: str) -> None:
-        logger.debug("%s: About to consider say '%s'.", location, text)
-        location_config = self._location.get(location, {})
-        say_cmd = location_config.get('say_cmd', [])
-        if len(say_cmd) == 0:
-            return
-        logger.debug("%s: About to say '%s'.", location, text)
-        await self._music_stop(location)
-        await self._play(location, 'prefix')
-        await self._execute(say_cmd, {'text': text})
-        await self._play(location, 'repeat')
-        await self._execute(say_cmd, {'text': text})
-        await self._play(location, 'postfix')
+        logger.debug("%s: About to say '%s' (MQTT).", location, text)
+        await self._execute(
+            '/say/%s/' % location,
+            text,
+        )
 
     async def say(self, locations: Set[str], text: str) -> None:
         if self._disabled:
@@ -93,15 +88,11 @@ class AudioOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _play(self, location: str, sound: str) -> None:
-        sound_file = self._config['sounds'].get(sound)
-        if not sound_file:
-            return
-        location_config = self._location.get(location, {})
-        play_cmd = location_config.get('play_cmd', [])
-        if len(play_cmd) == 0:
-            return
-        logger.debug("%s: About to play sound '%s'.", location, sound_file)
-        await self._execute(play_cmd, {'file': sound_file})
+        logger.debug("%s: About to play sound '%s' (MQTT).", location, sound)
+        await self._execute(
+            '/play/%s/' % location,
+            sound,
+        )
 
     async def play(self, locations: Set[str], sound: str) -> None:
         if self._disabled:
@@ -113,12 +104,11 @@ class AudioOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_play(self, location: str, play_list: str) -> None:
-        location_config = self._location.get(location, {})
-        music_play_cmd = location_config.get('music_play_cmd', [])
-        if len(music_play_cmd) == 0:
-            return
-        logger.debug("%s: About to play music '%s'.", location, play_list)
-        await self._execute(music_play_cmd, {'play_list': play_list})
+        logger.debug("%s: About to play music '%s' (MQTT).", location, play_list)
+        await self._execute(
+            '/play_music/%s/' % location,
+            play_list,
+        )
 
     async def music_play(self, locations: Set[str], play_list: str) -> None:
         if self._disabled:
@@ -130,12 +120,11 @@ class AudioOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_stop(self, location: str) -> None:
-        location_config = self._location.get(location, {})
-        music_stop_cmd = location_config.get('music_stop_cmd', [])
-        if len(music_stop_cmd) == 0:
-            return
-        logger.debug("%s: About to stop music.", location)
-        await self._execute(music_stop_cmd, {})
+        logger.debug("%s: About to stop music (MQTT).", location)
+        await self._execute(
+            '/play_music/%s/' % location,
+            None,
+        )
 
     async def music_stop(self, locations: Set[str]) -> None:
         if self._disabled:

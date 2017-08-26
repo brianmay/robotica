@@ -9,6 +9,7 @@ from typing import Any, Optional
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 
 from robotica.executor import Executor
+from robotica.inputs import Input
 from robotica.schedule import Schedule
 
 logger = logging.getLogger(__name__)
@@ -16,12 +17,13 @@ logger = logging.getLogger(__name__)
 JsonType = Any
 
 
-class Mqtt:
+class MqttInput(Input):
     def __init__(
             self, loop: asyncio.AbstractEventLoop,
             config: str,
             executor: Executor,
-            schedule: Schedule) -> None:
+            schedule: Schedule,
+            client: MQTTClient) -> None:
         self._loop = loop
         with open(config, "r") as file:
             self._config = yaml.safe_load(file)
@@ -30,7 +32,7 @@ class Mqtt:
         self._executor = executor
         self._schedule = schedule
         self._task = None  # type: Optional[asyncio.Task]
-        self._client = MQTTClient()
+        self._client = client
 
     def start(self) -> None:
         if not self._disabled:

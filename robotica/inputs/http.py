@@ -11,15 +11,16 @@ from typing import Any, Awaitable, Callable, Union
 
 from robotica import __version__ as version
 from robotica.executor import Executor
+from robotica.inputs import Input
 from robotica.schedule import Schedule
+from robotica.types import JsonType
 
 logger = logging.getLogger(__name__)
 
-JsonType = Any
 Handler = Callable[[int], Awaitable[JsonType]]
 
 
-class Http:
+class HttpInput(Input):
     def __init__(
             self, loop: asyncio.AbstractEventLoop,
             config: str,

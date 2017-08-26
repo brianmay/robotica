@@ -6,12 +6,14 @@ import logging
 
 import click
 import click_log
+from hbmqtt.client import MQTTClient
 
 from robotica.executor import Executor
-from robotica.inputs.http import Http
-from robotica.inputs.mqtt import Mqtt
-from robotica.outputs.audio import Audio
-from robotica.outputs.lifx import Lifx
+from robotica.inputs.http import HttpInput
+from robotica.inputs.mqtt import MqttInput
+from robotica.outputs.audio import AudioOutput
+from robotica.outputs.lifx import LifxOutput
+from robotica.outputs.mqtt import MqttOutput
 from robotica.schedule import Schedule
 
 logger = logging.getLogger('robotica')
@@ -31,21 +33,27 @@ def main(
         schedule: str, http: str, mqtt: str) -> None:
     """Console script for robotica."""
     loop = asyncio.get_event_loop()
+    client = MQTTClient()
 
-    lifx_output = Lifx(loop, lifx)
+    lifx_output = LifxOutput(loop, lifx)
     lifx_output.start()
 
-    audio_output = Audio(loop, audio)
+    audio_output = AudioOutput(loop, audio)
 
-    executor_obj = Executor(loop, executor, lifx_output, audio_output)
+    mqtt_output = MqttOutput(loop, audio, client)
+
+    executor_obj = Executor(loop, executor)
+    executor_obj.add_output(audio_output)
+    executor_obj.add_output(lifx_output)
+    executor_obj.add_output(mqtt_output)
 
     schedule_obj = Schedule(schedule, executor_obj)
     schedule_obj.start()
 
-    http_input = Http(loop, http, executor_obj, schedule_obj)
+    http_input = HttpInput(loop, http, executor_obj, schedule_obj)
     http_input.start()
 
-    mqtt_input = Mqtt(loop, mqtt, executor_obj, schedule_obj)
+    mqtt_input = MqttInput(loop, mqtt, executor_obj, schedule_obj, client)
     mqtt_input.start()
 
     try:

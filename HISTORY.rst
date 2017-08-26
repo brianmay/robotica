@@ -8,10 +8,12 @@ History
 Added
 ~~~~~
 * MQTT support for execute request/response.
+* MQTT support for audio events.
 
 Changed
 ~~~~~~~
 * Execute one task at a time.
+* Refactor input/output code.
 
 
 0.1.18 (2017-09-20)
