@@ -18,6 +18,11 @@ logger = logging.getLogger(__name__)
 JsonType = Any
 
 
+TOPICS = [
+    ('/execute', QOS_0),
+]
+
+
 class MqttInput(Input):
     def __init__(
             self, loop: asyncio.AbstractEventLoop,
@@ -41,7 +46,6 @@ class MqttInput(Input):
 
     def stop(self) -> None:
         if not self._disabled and self._task is not None:
-            self._client.unsubscribe('/execute/')
             self._task.cancel()
             try:
                 self._loop.run_until_complete(self._task)
@@ -84,9 +88,7 @@ class MqttInput(Input):
     async def _mqtt(self) -> None:
         client = self._client
         await client.connect(self._broker_url)
-        await client.subscribe([
-            ('/execute', QOS_0),
-        ])
+        await client.subscribe(TOPICS)
 
         while True:
             try:
@@ -102,7 +104,7 @@ class MqttInput(Input):
                     logger.error("JSON Error %s" % e)
 
             except asyncio.CancelledError:
-                await client.unsubscribe(['/execute'])
+                await client.unsubscribe([t[0] for t in TOPICS])
                 await client.disconnect()
                 raise
             except ClientException as e:
