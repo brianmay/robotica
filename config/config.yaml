@@ -1,0 +1,43 @@
+executor:
+  woof: meow
+inputs:
+  http:
+    disabled: False
+    username: admin
+    password: q1w2e3r4
+  mqtt:
+    disabled: false
+    broker_url: mqtt://localhost
+outputs:
+  audio:
+    disabled: False
+    sounds:
+      prefix: /usr/share/sounds/purple/login.wav
+      repeat: /usr/share/sounds/purple/alert.wav
+      postfix: /usr/share/sounds/purple/logout.wav
+    location:
+      Brian:
+        say_cmd:
+        - espeak -ven+f5 -k5 {text}
+        play_cmd:
+        - aplay {file}
+        music_play_cmd:
+        - mpc clear
+        - mpc load {play_list}
+        - mpc play
+        music_stop_cmd:
+        - mpc stop
+  lifx:
+    disabled: False
+    location:
+      Brian:
+      - Brian
+      Dining:
+      - Kitchen
+      Twins:
+      - Twins
+  mqtt:
+    disabled: false
+    broker_url: mqtt://localhost
+    location:
+        Brian:

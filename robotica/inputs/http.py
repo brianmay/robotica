@@ -7,7 +7,7 @@ from json import JSONDecodeError
 import yaml
 
 from aiohttp import web
-from typing import Any, Awaitable, Callable, Union
+from typing import Any, Awaitable, Callable, Union, Dict
 
 from robotica import __version__ as version
 from robotica.executor import Executor
@@ -23,12 +23,11 @@ Handler = Callable[[int], Awaitable[JsonType]]
 class HttpInput(Input):
     def __init__(
             self, loop: asyncio.AbstractEventLoop,
-            config: str,
+            config: Dict,
             executor: Executor,
             schedule: Schedule) -> None:
         self._loop = loop
-        with open(config, "r") as file:
-            self._config = yaml.safe_load(file)
+        self._config = config
         self._disabled = self._config['disabled']
         self._username = self._config['username']
         self._password = self._config['password']

@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import List, Union, Set
+from typing import List, Union, Set, Dict
 
 import yaml
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
@@ -12,10 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class LifxOutput(Output):
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: str) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: Dict) -> None:
         self._loop = loop
-        with open(config, "r") as file:
-            self._config = yaml.safe_load(file)
+        self._config = config
         self._disabled = self._config['disabled']
         self._lights = Lights(loop=self._loop)
 

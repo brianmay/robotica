@@ -3,10 +3,10 @@
 """Console script for Robotica."""
 import asyncio
 import logging
+import yaml
 
 import click
 import click_log
-from hbmqtt.client import MQTTClient
 
 from robotica.executor import Executor
 from robotica.inputs.http import HttpInput
@@ -21,28 +21,28 @@ click_log.basic_config(logger)
 
 
 @click.command()
-@click.option('--audio', default="config/audio.yaml", help='Path to audio config.')
-@click.option('--lifx', default="config/lifx.yaml", help='Path to LIFX config.')
-@click.option('--executor', default="config/executor.yaml", help='Path to executor config.')
+@click.option('--config', default="config/config.yaml", help='Path to config.')
 @click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config.')
-@click.option('--http', default="config/http.yaml", help='Path to HTTP config.')
-@click.option('--mqtt', default="config/mqtt.yaml", help='Path to MQTT config.')
 @click_log.simple_verbosity_option(logger)
-def main(
-        audio: str, lifx: str, executor: str,
-        schedule: str, http: str, mqtt: str) -> None:
+def main(config: str, schedule: str) -> None:
     """Console script for robotica."""
-    loop = asyncio.get_event_loop()
-    client = MQTTClient()
+    with open(config, "r") as file:
+        config_dict = yaml.safe_load(file)
+        output_dict = config_dict['outputs']
+        input_dict = config_dict['inputs']
 
-    lifx_output = LifxOutput(loop, lifx)
+    loop = asyncio.get_event_loop()
+
+    lifx_output = LifxOutput(loop, output_dict['lifx'])
     lifx_output.start()
 
-    audio_output = AudioOutput(loop, audio)
+    audio_output = AudioOutput(loop, output_dict['audio'])
+    audio_output.start()
 
-    mqtt_output = MqttOutput(loop, mqtt, client)
+    mqtt_output = MqttOutput(loop, output_dict['mqtt'])
+    mqtt_output.start()
 
-    executor_obj = Executor(loop, executor)
+    executor_obj = Executor(loop, config_dict['executor'])
     executor_obj.add_output(audio_output)
     executor_obj.add_output(lifx_output)
     executor_obj.add_output(mqtt_output)
@@ -50,10 +50,10 @@ def main(
     schedule_obj = Schedule(schedule, executor_obj)
     schedule_obj.start()
 
-    http_input = HttpInput(loop, http, executor_obj, schedule_obj)
+    http_input = HttpInput(loop, input_dict['http'], executor_obj, schedule_obj)
     http_input.start()
 
-    mqtt_input = MqttInput(loop, mqtt, executor_obj, schedule_obj, client)
+    mqtt_input = MqttInput(loop, input_dict['mqtt'], executor_obj, schedule_obj)
     mqtt_input.start()
 
     try:
@@ -62,6 +62,8 @@ def main(
         mqtt_input.stop()
         http_input.stop()
         schedule_obj.stop()
+        mqtt_output.stop()
+        audio_output.stop()
         lifx_output.stop()
         pending = asyncio.Task.all_tasks()
         for p in pending:

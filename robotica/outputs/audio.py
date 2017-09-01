@@ -14,12 +14,17 @@ logger = logging.getLogger(__name__)
 
 class AudioOutput(Output):
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: str) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: Dict) -> None:
         self._loop = loop
-        with open(config, "r") as file:
-            self._config = yaml.safe_load(file)
+        self._config = config
         self._disabled = self._config['disabled']
         self._location = self._config.get('location', {})
+
+    def start(self) -> None:
+        pass
+
+    def stop(self) -> None:
+        pass
 
     def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
         if self._disabled:

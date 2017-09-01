@@ -5,7 +5,7 @@ import platform
 
 import yaml
 
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 
@@ -27,19 +27,17 @@ TOPICS = [
 class MqttInput(Input):
     def __init__(
             self, loop: asyncio.AbstractEventLoop,
-            config: str,
+            config: Dict,
             executor: Executor,
-            schedule: Schedule,
-            client: MQTTClient) -> None:
+            schedule: Schedule) -> None:
         self._loop = loop
-        with open(config, "r") as file:
-            self._config = yaml.safe_load(file)
+        self._config = config
         self._disabled = self._config['disabled']
         self._broker_url = self._config['broker_url']
         self._executor = executor
         self._schedule = schedule
         self._task = None  # type: Optional[asyncio.Task]
-        self._client = client
+        self._client = MQTTClient()
 
     def start(self) -> None:
         if not self._disabled:

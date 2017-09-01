@@ -4,7 +4,7 @@ import json
 
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 import logging
-from typing import Set
+from typing import Set, Dict
 import yaml
 
 from robotica.outputs import Output
@@ -15,13 +15,20 @@ logger = logging.getLogger(__name__)
 
 class MqttOutput(Output):
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: str, client: MQTTClient) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: Dict) -> None:
         self._loop = loop
-        with open(config, "r") as file:
-            self._config = yaml.safe_load(file)
+        self._config = config
         self._disabled = self._config['disabled']
+        self._broker_url = self._config['broker_url']
         self._location = self._config.get('location', {})
-        self._client = client  # type: MQTTClient
+        self._client = MQTTClient()
+
+    def start(self) -> None:
+        if not self._disabled:
+            self._loop.run_until_complete(self._client.connect(self._broker_url))
+
+    def stop(self) -> None:
+        pass
 
     def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
         if self._disabled:

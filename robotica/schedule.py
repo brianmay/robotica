@@ -62,10 +62,9 @@ class Schedule:
         assert self._scheduler is not None
         await self._prepare_for_day(self._scheduler)
 
-    def save_schedule(self):
+    def save_schedule(self) -> None:
         with open(self._schedule_path, "w") as file:
-            data = yaml.dump(self._schedule)
-            file.write(data)
+            yaml.dump(self._schedule, stream=file)
 
     def start(self) -> None:
         scheduler = AsyncIOScheduler()
