@@ -51,13 +51,26 @@ class TimeEntry:
 
 class Schedule:
     def __init__(self, schedule_path: str, executor: Executor) -> None:
+        self._schedule_path = schedule_path
         with open(schedule_path, "r") as file:
             self._schedule = yaml.safe_load(file)
         self._executor = executor
+        self._scheduler = None  # type: Optional[BaseScheduler]
+
+    async def set_schedule(self, schedule: Dict):
+        self._schedule = schedule
+        assert self._scheduler is not None
+        await self._prepare_for_day(self._scheduler)
+
+    def save_schedule(self):
+        with open(self._schedule_path, "w") as file:
+            data = yaml.dump(self._schedule)
+            file.write(data)
 
     def start(self) -> None:
         scheduler = AsyncIOScheduler()
         scheduler.start()
+        self._scheduler = scheduler
         self.add_tasks_to_scheduler(scheduler)
 
     def stop(self) -> None:
@@ -263,7 +276,7 @@ class Schedule:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
         await self._executor.do_actions(entry.locations, entry.actions)
 
-    async def prepare_for_day(self, scheduler: BaseScheduler) -> None:
+    async def _prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())
         self.add_tasks_to_scheduler(scheduler)
 
@@ -273,7 +286,7 @@ class Schedule:
 
         scheduler.remove_all_jobs()
         scheduler.add_job(
-            self.prepare_for_day, 'cron', hour="00", minute="00",
+            self._prepare_for_day, 'cron', hour="00", minute="00",
             kwargs={'scheduler': scheduler}
         )
         for entry in schedule:

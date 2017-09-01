@@ -20,6 +20,7 @@ JsonType = Any
 
 TOPICS = [
     ('/execute/', QOS_0),
+    ('/schedule/', QOS_0),
 ]
 
 
@@ -81,9 +82,15 @@ class MqttInput(Input):
 
         return
 
+    async def _process_schedule(self, data: JsonType) -> None:
+         await self._schedule.set_schedule(data)
+         self._schedule.save_schedule()
+
     async def _process(self, topic: str, data: JsonType) -> None:
         if topic.startswith("/execute/"):
             await self._execute(data)
+        if topic.startswith("/schedule/"):
+            await self._process_schedule(data)
 
     async def _mqtt(self) -> None:
         client = self._client
