@@ -19,7 +19,7 @@ JsonType = Any
 
 
 TOPICS = [
-    ('/execute', QOS_0),
+    ('/execute/', QOS_0),
 ]
 
 
@@ -82,7 +82,7 @@ class MqttInput(Input):
         return
 
     async def _process(self, topic: str, data: JsonType) -> None:
-        if topic == "/execute":
+        if topic.startswith("/execute/"):
             await self._execute(data)
 
     async def _mqtt(self) -> None:
