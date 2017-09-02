@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.24 (2017-09-02)
+-------------------
+
+Changed
+~~~~~~~
+* Combine log files into one.
+* MQTT message to replace schedule.
+
+
 0.1.23 (2017-08-26)
 -------------------
 
