@@ -15,7 +15,7 @@ outputs:
       prefix: /usr/share/sounds/purple/login.wav
       repeat: /usr/share/sounds/purple/alert.wav
       postfix: /usr/share/sounds/purple/logout.wav
-    location:
+    locations:
       Brian:
         say_cmd:
         - espeak -ven+f5 -k5 {text}
@@ -29,7 +29,7 @@ outputs:
         - mpc stop
   lifx:
     disabled: False
-    location:
+    locations:
       Brian:
       - Brian
       Dining:
@@ -39,5 +39,5 @@ outputs:
   mqtt:
     disabled: false
     broker_url: mqtt://localhost
-    location:
+    locations:
         Brian:

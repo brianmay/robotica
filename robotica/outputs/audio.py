@@ -18,7 +18,7 @@ class AudioOutput(Output):
         self._loop = loop
         self._config = config
         self._disabled = self._config['disabled']
-        self._location = self._config.get('location', {})
+        self._locations = self._config.get('locations', {}) or {}
 
     def start(self) -> None:
         pass
@@ -33,7 +33,7 @@ class AudioOutput(Output):
         good_locations = [
             location
             for location in locations
-            if location in self._location
+            if location in self._locations
         ]
 
         if len(good_locations) == 0:
@@ -76,7 +76,7 @@ class AudioOutput(Output):
 
     async def _say(self, location: str, text: str) -> None:
         logger.debug("%s: About to consider say '%s'.", location, text)
-        location_config = self._location.get(location, {})
+        location_config = self._locations.get(location, {})
         say_cmd = location_config.get('say_cmd', [])
         if len(say_cmd) == 0:
             return
@@ -101,7 +101,7 @@ class AudioOutput(Output):
         sound_file = self._config['sounds'].get(sound)
         if not sound_file:
             return
-        location_config = self._location.get(location, {})
+        location_config = self._locations.get(location, {})
         play_cmd = location_config.get('play_cmd', [])
         if len(play_cmd) == 0:
             return
@@ -118,7 +118,7 @@ class AudioOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_play(self, location: str, play_list: str) -> None:
-        location_config = self._location.get(location, {})
+        location_config = self._locations.get(location, {})
         music_play_cmd = location_config.get('music_play_cmd', [])
         if len(music_play_cmd) == 0:
             return
@@ -135,7 +135,7 @@ class AudioOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_stop(self, location: str) -> None:
-        location_config = self._location.get(location, {})
+        location_config = self._locations.get(location, {})
         music_stop_cmd = location_config.get('music_stop_cmd', [])
         if len(music_stop_cmd) == 0:
             return

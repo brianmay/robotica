@@ -20,7 +20,7 @@ class MqttOutput(Output):
         self._config = config
         self._disabled = self._config['disabled']
         self._broker_url = self._config['broker_url']
-        self._location = self._config.get('location', {})
+        self._locations = self._config.get('locations', {}) or {}
         self._client = MQTTClient()
 
     def start(self) -> None:
@@ -37,7 +37,7 @@ class MqttOutput(Output):
         good_locations = [
             location
             for location in locations
-            if location in self._location
+            if location in self._locations
         ]
 
         if len(good_locations) == 0:
@@ -79,7 +79,7 @@ class MqttOutput(Output):
             logger.exception("The client operation failed.")
 
     async def _say(self, location: str, text: str) -> None:
-        if location not in self._location:
+        if location not in self._locations:
             return
         logger.debug("%s: About to say '%s' (MQTT).", location, text)
         await self._execute(
@@ -97,7 +97,7 @@ class MqttOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _play(self, location: str, sound: str) -> None:
-        if location not in self._location:
+        if location not in self._locations:
             return
         logger.debug("%s: About to play sound '%s' (MQTT).", location, sound)
         await self._execute(
@@ -115,7 +115,7 @@ class MqttOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_play(self, location: str, play_list: str) -> None:
-        if location not in self._location:
+        if location not in self._locations:
             return
         logger.debug("%s: About to play music '%s' (MQTT).", location, play_list)
         await self._execute(
@@ -133,7 +133,7 @@ class MqttOutput(Output):
         await asyncio.gather(*coros, loop=self._loop)
 
     async def _music_stop(self, location: str) -> None:
-        if location not in self._location:
+        if location not in self._locations:
             return
         logger.debug("%s: About to stop music (MQTT).", location)
         await self._execute(

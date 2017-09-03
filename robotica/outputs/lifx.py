@@ -17,6 +17,7 @@ class LifxOutput(Output):
         self._config = config
         self._disabled = self._config['disabled']
         self._lights = Lights(loop=self._loop)
+        self._locations = self._config.get('locations', {}) or {}
 
     def start(self) -> None:
         if not self._disabled:
@@ -32,7 +33,7 @@ class LifxOutput(Output):
         if self._disabled:
             return set()
         for location in locations:
-            labels = labels | set(self._config["location"].get(location, []))
+            labels = labels | set(self._locations.get(location, []))
         return labels
 
     def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
