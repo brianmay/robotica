@@ -2,6 +2,18 @@
 History
 =======
 
+0.1.25 (2017-09-06)
+-------------------
+
+Added
+~~~~~
+* Add ability to turn off lights.
+
+Changed
+~~~~~~~
+* Renamed location setting to locations.
+
+
 0.1.24 (2017-09-02)
 -------------------
 
