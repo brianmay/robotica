@@ -55,6 +55,8 @@ class LifxOutput(Output):
                 await self.flash(locations=locations)
             elif lights_action == "wake_up":
                 await self.wake_up(locations=locations)
+            elif lights_action == "turn_off":
+                await self.turn_off(locations=locations)
             else:
                 logger.error("Unknown action '%s'.", action)
 
@@ -92,3 +94,8 @@ class LifxOutput(Output):
             duty_cycle=0,
             waveform=0,
         )
+
+    async def turn_off(self, locations: Set[str]) -> None:
+        lights = self._get_lights_from_locations(locations)
+        logger.info("Lifx flash for lights %s.", lights)
+        await lights.set_light_power(False)
