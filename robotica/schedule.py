@@ -82,7 +82,8 @@ class Schedule:
             time_offset: Optional[datetime.time]) -> List[TimeEntry]:
         result = []  # type: List[TimeEntry]
 
-        locations = locations | set(entry.get('locations', []))
+        locations = locations & set(entry.get('locations', locations))
+        locations = locations - set(entry.get('locations_exclude', []))
         actions = list(entry.get('actions', []))
 
         time = entry['time']

@@ -131,7 +131,9 @@ day:
   school:
     description: A normal school day.
     locations:
+    - Brian
     - Dining
+    - Twins
     when:
       days_of_week:
       - Monday
@@ -146,8 +148,6 @@ day:
       - 2017-10-09 to 2017-12-22
     schedule:
     - time: '06:30'
-      locations:
-      - Twins
       template: wake_up
 
   shower:
