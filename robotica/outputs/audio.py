@@ -67,7 +67,6 @@ class AudioOutput(Output):
                 logger.info("Command %s returned %d", split, result)
 
     async def say(self, location: str, text: str) -> None:
-        logger.debug("%s: About to consider say '%s'.", location, text)
         location_config = self._locations.get(location, {})
         say_cmd = location_config.get('say_cmd', [])
         if len(say_cmd) == 0:
