@@ -30,17 +30,11 @@ class MqttOutput(Output):
     def stop(self) -> None:
         pass
 
-    def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
+    def is_action_required_for_location(self, location: str, action: Action) -> bool:
         if self._disabled:
             return False
 
-        good_locations = [
-            location
-            for location in locations
-            if location in self._locations
-        ]
-
-        if len(good_locations) == 0:
+        if location not in self._locations:
             return False
 
         if 'message' in action:
@@ -51,19 +45,19 @@ class MqttOutput(Output):
 
         return False
 
-    async def execute(self, locations: Set[str], action: Action) -> None:
+    async def execute(self, location: str, action: Action) -> None:
         if 'message' in action:
             message = action['message']
 
             await self.say(
-                locations=locations,
+                location=location,
                 text=message['text'])
 
         if 'music' in action:
             music = action['music']
 
             await self.music_play(
-                locations=locations,
+                location=location,
                 play_list=music['play_list'])
 
     async def _execute(self, topic: str, data: JsonType) -> None:
@@ -78,7 +72,7 @@ class MqttOutput(Output):
         except ClientException:
             logger.exception("The client operation failed.")
 
-    async def _say(self, location: str, text: str) -> None:
+    async def say(self, location: str, text: str) -> None:
         if location not in self._locations:
             return
         logger.debug("%s: About to say '%s' (MQTT).", location, text)
@@ -87,16 +81,7 @@ class MqttOutput(Output):
             text,
         )
 
-    async def say(self, locations: Set[str], text: str) -> None:
-        if self._disabled:
-            return
-        coros = [
-            self._say(location, text)
-            for location in locations
-        ]
-        await asyncio.gather(*coros, loop=self._loop)
-
-    async def _play(self, location: str, sound: str) -> None:
+    async def play(self, location: str, sound: str) -> None:
         if location not in self._locations:
             return
         logger.debug("%s: About to play sound '%s' (MQTT).", location, sound)
@@ -105,16 +90,7 @@ class MqttOutput(Output):
             sound,
         )
 
-    async def play(self, locations: Set[str], sound: str) -> None:
-        if self._disabled:
-            return
-        coros = [
-            self._play(location, sound)
-            for location in locations
-        ]
-        await asyncio.gather(*coros, loop=self._loop)
-
-    async def _music_play(self, location: str, play_list: str) -> None:
+    async def music_play(self, location: str, play_list: str) -> None:
         if location not in self._locations:
             return
         logger.debug("%s: About to play music '%s' (MQTT).", location, play_list)
@@ -123,16 +99,7 @@ class MqttOutput(Output):
             play_list,
         )
 
-    async def music_play(self, locations: Set[str], play_list: str) -> None:
-        if self._disabled:
-            return
-        coros = [
-            self._music_play(location, play_list)
-            for location in locations
-        ]
-        await asyncio.gather(*coros, loop=self._loop)
-
-    async def _music_stop(self, location: str) -> None:
+    async def music_stop(self, location: str) -> None:
         if location not in self._locations:
             return
         logger.debug("%s: About to stop music (MQTT).", location)
@@ -140,12 +107,3 @@ class MqttOutput(Output):
             '/stop_music/%s/' % location,
             None,
         )
-
-    async def music_stop(self, locations: Set[str]) -> None:
-        if self._disabled:
-            return
-        coros = [
-            self._music_stop(location)
-            for location in locations
-        ]
-        await asyncio.gather(*coros, loop=self._loop)

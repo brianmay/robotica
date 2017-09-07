@@ -28,16 +28,12 @@ class LifxOutput(Output):
         if not self._disabled:
             self._task.cancel()
 
-    def _get_labels_for_locations(self, locations: Set[str]) -> Set[str]:
-        labels = set()  # type: Set[str]
-        if self._disabled:
-            return set()
-        for location in locations:
-            labels = labels | set(self._locations.get(location, []))
+    def _get_labels_for_location(self, location: str) -> Set[str]:
+        labels = set(self._locations.get(location, []))
         return labels
 
-    def is_action_required_for_locations(self, locations: Set[str], action: Action) -> bool:
-        labels = self._get_labels_for_locations(locations)
+    def is_action_required_for_location(self, location: str, action: Action) -> bool:
+        labels = self._get_labels_for_location(location)
         if len(labels) == 0:
             return False
 
@@ -46,26 +42,26 @@ class LifxOutput(Output):
 
         return False
 
-    async def execute(self, locations: Set[str], action: Action) -> None:
+    async def execute(self, location: str, action: Action) -> None:
         if 'lights' in action:
             lights = action['lights']
 
             lights_action = lights['action']
             if lights_action == "flash":
-                await self.flash(locations=locations)
+                await self.flash(location=location)
             elif lights_action == "wake_up":
-                await self.wake_up(locations=locations)
+                await self.wake_up(location=location)
             elif lights_action == "turn_off":
-                await self.turn_off(locations=locations)
+                await self.turn_off(location=location)
             else:
                 logger.error("Unknown action '%s'.", action)
 
-    def _get_lights_from_locations(self, locations: Set[str]) -> Lights:
-        labels = self._get_labels_for_locations(locations)
+    def _get_lights_from_location(self, location: str) -> Lights:
+        labels = self._get_labels_for_location(location)
         lights = self._lights.get_by_lists(labels=list(labels))  # type: Lights
         return lights
 
-    async def wake_up(self, locations: Set[str]) -> None:
+    async def wake_up(self, location: str) -> None:
         async def single_device(device: Light) -> None:
             try:
                 power = await device.get_power()
@@ -79,12 +75,12 @@ class LifxOutput(Output):
             except DeviceOffline:
                 logger.error("Light is offline %s.", device)
 
-        lights = self._get_lights_from_locations(locations)
+        lights = self._get_lights_from_location(location)
         logger.info("Lifx wakeup for lights %s.", lights)
         await lights.do_for_every_device(Light, single_device)
 
-    async def flash(self, locations: Set[str]) -> None:
-        lights = self._get_lights_from_locations(locations)
+    async def flash(self, location: str) -> None:
+        lights = self._get_lights_from_location(location)
         logger.info("Lifx flash for lights %s.", lights)
         await lights.set_waveform(
             color=Color(hue=0, saturation=100, brightness=100, kelvin=3500),
@@ -95,7 +91,7 @@ class LifxOutput(Output):
             waveform=0,
         )
 
-    async def turn_off(self, locations: Set[str]) -> None:
-        lights = self._get_lights_from_locations(locations)
+    async def turn_off(self, location: str) -> None:
+        lights = self._get_lights_from_location(location)
         logger.info("Lifx flash for lights %s.", lights)
         await lights.set_light_power(False)

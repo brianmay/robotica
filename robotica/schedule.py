@@ -113,18 +113,22 @@ class Schedule:
             )
             result = result + template_result
 
-        actions = [
-            action
-            for action in actions
-            if self._executor.is_action_required_for_locations(
-                locations, action)
-        ]
+        required_locations = set()  # type: Set[str]
+        required_actions = []  # type: List[Action]
+        for action in actions:
+            locations_for_action = self._executor.action_required_for_locations(
+                locations=locations,
+                action=action
+            )
+            if len(locations_for_action) > 0:
+                required_locations = required_locations | locations_for_action
+                required_actions.append(action)
 
-        if len(actions) > 0:
+        if len(required_actions) > 0:
             result.append(TimeEntry(
                 time=parsed_time,
-                locations=locations,
-                actions=actions,
+                locations=required_locations,
+                actions=required_actions,
             ))
 
         return result

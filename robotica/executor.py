@@ -22,27 +22,33 @@ class Executor:
     def add_output(self, output: Output) -> None:
         self._outputs.append(output)
 
-    def is_action_required_for_locations(
-            self, locations: Set[str], action: Action) -> bool:
+    def action_required_for_locations(
+            self, locations: Set[str], action: Action) -> Set[str]:
 
-        action_required = [
-            output.is_action_required_for_locations(locations, action)
+        required_locations = set([
+            location
             for output in self._outputs
-        ]
+            for location in locations
+            if output.is_action_required_for_location(location, action)
+        ])
 
-        return any(action_required)
+        return required_locations
 
     async def do_action(self, locations: Set[str], action: Action) -> None:
-        if self.is_action_required_for_locations(locations, action):
-            with await self._lock:
-                coros = [
-                    output.execute(locations, action)
-                    for output in self._outputs
-                ]
-                await asyncio.gather(
-                    *coros,
-                    loop=self._loop
-                )
+        required_locations = self.action_required_for_locations(locations, action)
+        if len(required_locations) == 0:
+            return
+
+        with await self._lock:
+            coros = [
+                output.execute(location, action)
+                for output in self._outputs
+                for location in locations
+            ]
+            await asyncio.gather(
+                *coros,
+                loop=self._loop
+            )
 
     async def do_actions(self, locations: Set[str], actions: List[Action]) -> None:
         for action in actions:
