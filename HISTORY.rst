@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.26 (2017-09-07)
+-------------------
+
+Changed
+~~~~~~~
+* Refactor locations.
+* Locations now intersect or subtract from parent locations.
+
+
 0.1.25 (2017-09-06)
 -------------------
 
