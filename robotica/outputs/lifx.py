@@ -33,6 +33,9 @@ class LifxOutput(Output):
         return labels
 
     def is_action_required_for_location(self, location: str, action: Action) -> bool:
+        if self._disabled:
+            return False
+
         labels = self._get_labels_for_location(location)
         if len(labels) == 0:
             return False

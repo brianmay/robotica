@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.27 (2017-09-08)
+-------------------
+
+Fixed
+~~~~~
+* Ensure disabled lights actions are disabled.
+
+
 0.1.26 (2017-09-07)
 -------------------
 
