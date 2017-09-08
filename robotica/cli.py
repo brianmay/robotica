@@ -52,7 +52,11 @@ def main(config: str, schedule: str) -> None:
         output_plugin_config = output_dict[name]
         output_plugin_class = _load_class(output_plugin_config['plugin'])
         assert issubclass(output_plugin_class, Output)
-        output_plugin = output_plugin_class(loop, output_plugin_config)
+        output_plugin = output_plugin_class(
+            name=name,
+            loop=loop,
+            config=output_plugin_config,
+        )
         output_plugin.start()
         executor_obj.add_output(output_plugin)
         plugins.append(output_plugin)
@@ -65,7 +69,13 @@ def main(config: str, schedule: str) -> None:
 
         input_plugin_class = _load_class(input_plugin_config['plugin'])
         assert issubclass(input_plugin_class, Input)
-        input_plugin = input_plugin_class(loop, input_plugin_config, executor_obj, schedule_obj)
+        input_plugin = input_plugin_class(
+            name=name,
+            loop=loop,
+            config=input_plugin_config,
+            executor=executor_obj,
+            schedule=schedule_obj,
+        )
         input_plugin.start()
         plugins.append(input_plugin)
 

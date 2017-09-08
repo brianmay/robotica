@@ -11,7 +11,7 @@ from robotica import __version__ as version
 from robotica.executor import Executor
 from robotica.plugins.inputs import Input
 from robotica.schedule import Schedule
-from robotica.types import JsonType
+from robotica.types import JsonType, Config
 
 logger = logging.getLogger(__name__)
 
@@ -20,17 +20,23 @@ Handler = Callable[[int], Awaitable[JsonType]]
 
 class HttpInput(Input):
     def __init__(
-            self, loop: asyncio.AbstractEventLoop,
-            config: Dict,
+            self, *,
+            name: str,
+            loop: asyncio.AbstractEventLoop,
+            config: Config,
             executor: Executor,
             schedule: Schedule) -> None:
-        self._loop = loop
-        self._config = config
+        # assert isinstance(name, str)
+        super().__init__(
+            name=name,
+            loop=loop,
+            config=config,
+            executor=executor,
+            schedule=schedule,
+        )
         self._disabled = self._config['disabled']
         self._username = self._config['username']
         self._password = self._config['password']
-        self._executor = executor
-        self._schedule = schedule
 
     @staticmethod
     def _get_version(request: web.Request) -> JsonType:

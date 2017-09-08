@@ -5,15 +5,22 @@ from typing import Set, Dict
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
 
 from robotica.plugins.outputs import Output
-from robotica.types import Action
+from robotica.types import Action, Config
 
 logger = logging.getLogger(__name__)
 
 
 class LifxOutput(Output):
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: Dict) -> None:
-        self._loop = loop
-        self._config = config
+    def __init__(
+            self, *,
+            name: str,
+            loop: asyncio.AbstractEventLoop,
+            config: Config) -> None:
+        super().__init__(
+            name=name,
+            loop=loop,
+            config=config,
+        )
         self._disabled = self._config['disabled']
         self._lights = Lights(loop=self._loop)
         self._locations = self._config.get('locations', {}) or {}

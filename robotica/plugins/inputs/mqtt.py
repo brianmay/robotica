@@ -9,6 +9,7 @@ from hbmqtt.client import MQTTClient, ClientException, QOS_0
 from robotica.executor import Executor
 from robotica.plugins.inputs import Input
 from robotica.schedule import Schedule
+from robotica.types import Config
 
 logger = logging.getLogger(__name__)
 
@@ -23,16 +24,21 @@ TOPICS = [
 
 class MqttInput(Input):
     def __init__(
-            self, loop: asyncio.AbstractEventLoop,
-            config: Dict,
+            self, *,
+            name: str,
+            loop: asyncio.AbstractEventLoop,
+            config: Config,
             executor: Executor,
             schedule: Schedule) -> None:
-        self._loop = loop
-        self._config = config
+        super().__init__(
+            name=name,
+            loop=loop,
+            config=config,
+            executor=executor,
+            schedule=schedule,
+        )
         self._disabled = self._config['disabled']
         self._broker_url = self._config['broker_url']
-        self._executor = executor
-        self._schedule = schedule
         self._task = None  # type: Optional[asyncio.Task]
         self._client = MQTTClient()
 

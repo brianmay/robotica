@@ -7,16 +7,23 @@ from typing import Dict
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 
 from robotica.plugins.outputs import Output
-from robotica.types import JsonType, Action
+from robotica.types import JsonType, Action, Config
 
 logger = logging.getLogger(__name__)
 
 
 class MqttOutput(Output):
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: Dict) -> None:
-        self._loop = loop
-        self._config = config
+    def __init__(
+            self, *,
+            name: str,
+            loop: asyncio.AbstractEventLoop,
+            config: Config) -> None:
+        super().__init__(
+            name=name,
+            loop=loop,
+            config=config,
+        )
         self._disabled = self._config['disabled']
         self._broker_url = self._config['broker_url']
         self._locations = self._config.get('locations', {}) or {}
