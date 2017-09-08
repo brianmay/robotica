@@ -52,6 +52,11 @@ class MqttOutput(Output):
         return False
 
     async def execute(self, location: str, action: Action) -> None:
+        await self._execute(
+            '/action/%s/' % location,
+            action,
+        )
+
         if 'message' in action:
             message = action['message']
 
