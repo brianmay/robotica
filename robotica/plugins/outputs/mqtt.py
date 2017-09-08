@@ -1,13 +1,12 @@
 """ Give verbal message. """
 import asyncio
 import json
+import logging
+from typing import Dict
 
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
-import logging
-from typing import Set, Dict
-import yaml
 
-from robotica.outputs import Output
+from robotica.plugins.outputs import Output
 from robotica.types import JsonType, Action
 
 logger = logging.getLogger(__name__)

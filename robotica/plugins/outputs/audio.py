@@ -2,9 +2,9 @@
 import asyncio
 import logging
 import shlex
-from typing import Dict, List, Set
+from typing import Dict, List
 
-from robotica.outputs import Output
+from robotica.plugins.outputs import Output
 from robotica.types import Action
 
 logger = logging.getLogger(__name__)

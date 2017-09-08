@@ -3,13 +3,16 @@ executor:
 inputs:
   http:
     disabled: False
+    plugin: robotica.plugins.inputs.http.HttpInput
     username: admin
     password: q1w2e3r4
   mqtt:
+    plugin: robotica.plugins.inputs.mqtt.MqttInput
     disabled: false
     broker_url: mqtt://localhost
 outputs:
   audio:
+    plugin: robotica.plugins.outputs.audio.AudioOutput
     disabled: False
     sounds:
       prefix: /usr/share/sounds/purple/login.wav
@@ -28,6 +31,7 @@ outputs:
         music_stop_cmd:
         - mpc stop
   lifx:
+    plugin: robotica.plugins.outputs.lifx.LifxOutput
     disabled: False
     locations:
       Brian:
@@ -37,6 +41,7 @@ outputs:
       Twins:
       - Twins
   mqtt:
+    plugin: robotica.plugins.outputs.mqtt.MqttOutput
     disabled: false
     broker_url: mqtt://localhost
     locations:

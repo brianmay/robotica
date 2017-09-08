@@ -1,11 +1,10 @@
 import asyncio
 import logging
-from typing import List, Union, Set, Dict
+from typing import Set, Dict
 
-import yaml
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
 
-from robotica.outputs import Output
+from robotica.plugins.outputs import Output
 from robotica.types import Action
 
 logger = logging.getLogger(__name__)

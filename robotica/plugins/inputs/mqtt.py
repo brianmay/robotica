@@ -2,15 +2,12 @@ import asyncio
 import json
 import logging
 import platform
-
-import yaml
-
 from typing import Any, Optional, Dict
 
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 
 from robotica.executor import Executor
-from robotica.inputs import Input
+from robotica.plugins.inputs import Input
 from robotica.schedule import Schedule
 
 logger = logging.getLogger(__name__)

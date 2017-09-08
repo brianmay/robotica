@@ -2,22 +2,35 @@
 
 """Console script for Robotica."""
 import asyncio
+import importlib
 import logging
-import yaml
+from typing import List, Any
 
 import click
 import click_log
+import yaml
 
 from robotica.executor import Executor
-from robotica.inputs.http import HttpInput
-from robotica.inputs.mqtt import MqttInput
-from robotica.outputs.audio import AudioOutput
-from robotica.outputs.lifx import LifxOutput
-from robotica.outputs.mqtt import MqttOutput
+from robotica.plugins import Plugin
+from robotica.plugins.inputs import Input
+from robotica.plugins.outputs import Output
 from robotica.schedule import Schedule
 
 logger = logging.getLogger('robotica')
 click_log.basic_config(logger)
+
+
+def _load_class(class_name: str) -> Any:
+    """
+    Dynamically load a class from a string
+    """
+
+    class_data = class_name.split(".")
+    module_path = ".".join(class_data[:-1])
+    class_str = class_data[-1]
+
+    class_module = importlib.import_module(module_path)
+    return getattr(class_module, class_str)
 
 
 @click.command()
@@ -32,39 +45,35 @@ def main(config: str, schedule: str) -> None:
         input_dict = config_dict['inputs']
 
     loop = asyncio.get_event_loop()
-
-    lifx_output = LifxOutput(loop, output_dict['lifx'])
-    lifx_output.start()
-
-    audio_output = AudioOutput(loop, output_dict['audio'])
-    audio_output.start()
-
-    mqtt_output = MqttOutput(loop, output_dict['mqtt'])
-    mqtt_output.start()
+    plugins = []  # type: List[Plugin]
 
     executor_obj = Executor(loop, config_dict['executor'])
-    executor_obj.add_output(audio_output)
-    executor_obj.add_output(lifx_output)
-    executor_obj.add_output(mqtt_output)
+    for name in output_dict.keys():
+        output_plugin_config = output_dict[name]
+        output_plugin_class = _load_class(output_plugin_config['plugin'])
+        assert issubclass(output_plugin_class, Output)
+        output_plugin = output_plugin_class(loop, output_plugin_config)
+        output_plugin.start()
+        executor_obj.add_output(output_plugin)
+        plugins.append(output_plugin)
 
     schedule_obj = Schedule(schedule, executor_obj)
     schedule_obj.start()
 
-    http_input = HttpInput(loop, input_dict['http'], executor_obj, schedule_obj)
-    http_input.start()
+    for name in input_dict.keys():
+        input_plugin_config = input_dict[name]
 
-    mqtt_input = MqttInput(loop, input_dict['mqtt'], executor_obj, schedule_obj)
-    mqtt_input.start()
+        input_plugin_class = _load_class(input_plugin_config['plugin'])
+        assert issubclass(input_plugin_class, Input)
+        input_plugin = input_plugin_class(loop, input_plugin_config, executor_obj, schedule_obj)
+        input_plugin.start()
+        plugins.append(input_plugin)
 
     try:
         loop.run_forever()
     finally:
-        mqtt_input.stop()
-        http_input.stop()
-        schedule_obj.stop()
-        mqtt_output.stop()
-        audio_output.stop()
-        lifx_output.stop()
+        for plugin in reversed(plugins):
+            plugin.stop()
         pending = asyncio.Task.all_tasks()
         for p in pending:
             p.cancel()

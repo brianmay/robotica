@@ -3,15 +3,13 @@ import base64
 import datetime
 import logging
 from json import JSONDecodeError
-
-import yaml
+from typing import Awaitable, Callable, Dict
 
 from aiohttp import web
-from typing import Any, Awaitable, Callable, Union, Dict
 
 from robotica import __version__ as version
 from robotica.executor import Executor
-from robotica.inputs import Input
+from robotica.plugins.inputs import Input
 from robotica.schedule import Schedule
 from robotica.types import JsonType
 

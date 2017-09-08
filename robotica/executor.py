@@ -1,11 +1,9 @@
 """ Robotica Schedule. """
 import asyncio
 import logging
-from typing import Dict, Any, Set, List  # NOQA
+from typing import Dict, Set, List  # NOQA
 
-import yaml
-
-from robotica.outputs import Output
+from robotica.plugins.outputs import Output
 from robotica.types import Action
 
 logger = logging.getLogger(__name__)
