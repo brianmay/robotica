@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.28 (2017-09-09)
+-------------------
+
+Changed
+~~~~~~~
+* Specify the plugin for each input and output.
+* Publish complete action on MQTT output.
+
+
 0.1.27 (2017-09-08)
 -------------------
 
