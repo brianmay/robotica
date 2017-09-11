@@ -3,7 +3,7 @@ import base64
 import datetime
 import logging
 from json import JSONDecodeError
-from typing import Awaitable, Callable, Dict
+from typing import Awaitable, Callable, Dict, Optional
 
 from aiohttp import web
 
@@ -25,7 +25,7 @@ class HttpInput(Input):
             loop: asyncio.AbstractEventLoop,
             config: Config,
             executor: Executor,
-            schedule: Schedule) -> None:
+            schedule: Optional[Schedule]) -> None:
         # assert isinstance(name, str)
         super().__init__(
             name=name,
@@ -63,7 +63,10 @@ class HttpInput(Input):
             parsed_date = datetime.date(year=year, month=month, day=day)
         except ValueError:
             raise web.HTTPBadRequest()
-        schedule = self._schedule.get_schedule_for_date(parsed_date)
+        if self._schedule is not None:
+            schedule = self._schedule.get_schedule_for_date(parsed_date)
+        else:
+            schedule = []
         return [s.to_json() for s in schedule]
 
     def _get_application(self) -> web.Application:

@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import platform
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Tuple, List
 
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 
@@ -16,12 +16,6 @@ logger = logging.getLogger(__name__)
 JsonType = Any
 
 
-TOPICS = [
-    ('/execute/', QOS_0),
-    ('/schedule/', QOS_0),
-]
-
-
 class MqttInput(Input):
     def __init__(
             self, *,
@@ -29,7 +23,7 @@ class MqttInput(Input):
             loop: asyncio.AbstractEventLoop,
             config: Config,
             executor: Executor,
-            schedule: Schedule) -> None:
+            schedule: Optional[Schedule]) -> None:
         super().__init__(
             name=name,
             loop=loop,
@@ -53,6 +47,17 @@ class MqttInput(Input):
                 self._loop.run_until_complete(self._task)
             except asyncio.CancelledError:
                 pass
+
+    def _get_topics(self) -> List[Tuple[str, int]]:
+        topics = [
+            ('/execute/', QOS_0),
+            ('/schedule/', QOS_0),
+        ]
+        if self._schedule is not None:
+            topics += [
+                ('/action/#', QOS_0),
+            ]
+        return topics
 
     async def _execute(self, data: JsonType) -> None:
 
@@ -84,19 +89,27 @@ class MqttInput(Input):
         return
 
     async def _process_schedule(self, data: JsonType) -> None:
-         await self._schedule.set_schedule(data)
-         self._schedule.save_schedule()
+        if self._schedule is not None:
+            await self._schedule.set_schedule(data)
+            self._schedule.save_schedule()
+
+    async def _process_action(self, location: str, data: JsonType) -> None:
+        if self._schedule is None:
+            await self._executor.do_actions(set(location), data)
 
     async def _process(self, topic: str, data: JsonType) -> None:
         if topic.startswith("/execute/"):
             await self._execute(data)
         if topic.startswith("/schedule/"):
             await self._process_schedule(data)
+        if topic.startswith("/action/"):
+            location = topic[8:].rstrip("/")
+            await self._process_action(location, data)
 
     async def _mqtt(self) -> None:
         client = self._client
         await client.connect(self._broker_url)
-        await client.subscribe(TOPICS)
+        await client.subscribe(self._get_topics())
 
         while True:
             try:
@@ -112,7 +125,8 @@ class MqttInput(Input):
                     logger.error("JSON Error %s" % e)
 
             except asyncio.CancelledError:
-                await client.unsubscribe([t[0] for t in TOPICS])
+                topics = self._get_topics()
+                await client.unsubscribe([t[0] for t in topics])
                 await client.disconnect()
                 raise
             except ClientException as e:

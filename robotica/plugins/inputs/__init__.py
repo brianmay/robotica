@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict
+from typing import Optional
 
 from robotica.executor import Executor
 from robotica.plugins import Plugin
@@ -14,7 +14,7 @@ class Input(Plugin):
             loop: asyncio.AbstractEventLoop,
             config: Config,
             executor: Executor,
-            schedule: Schedule) -> None:
+            schedule: Optional[Schedule]) -> None:
         super().__init__(name=name, loop=loop, config=config)
         self._executor = executor
         self._schedule = schedule

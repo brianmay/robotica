@@ -35,7 +35,7 @@ def _load_class(class_name: str) -> Any:
 
 @click.command()
 @click.option('--config', default="config/config.yaml", help='Path to config.')
-@click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config.')
+@click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config or None.')
 @click_log.simple_verbosity_option(logger)
 def main(config: str, schedule: str) -> None:
     """Console script for robotica."""
@@ -61,8 +61,11 @@ def main(config: str, schedule: str) -> None:
         executor_obj.add_output(output_plugin)
         plugins.append(output_plugin)
 
-    schedule_obj = Schedule(schedule, executor_obj)
-    schedule_obj.start()
+    if schedule.upper() == "NONE":
+        schedule_obj = None
+    else:
+        schedule_obj = Schedule(schedule, executor_obj)
+        schedule_obj.start()
 
     for name in input_dict.keys():
         input_plugin_config = input_dict[name]

@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.29 (UNRELEASED)
+-------------------
+
+Added
+~~~~~
+* Add ability to run without scheduler and process incoming actions.
+
+
 0.1.28 (2017-09-09)
 -------------------
 
