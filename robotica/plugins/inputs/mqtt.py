@@ -50,16 +50,14 @@ class MqttInput(Input):
                 pass
 
     def _get_topics(self) -> List[Tuple[str, int]]:
-        topics = [
-            ('/schedule/', QOS_0),
-        ]
         if self._schedule is None:
-            topics += [
+            topics = [
                 ('/action/%s/' % location, QOS_0)
                 for location in self._locations
             ]
         else:
-            topics += [
+            topics = [
+                ('/schedule/', QOS_0),
                 ('/execute/', QOS_0),
             ]
         return topics
