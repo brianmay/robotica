@@ -43,33 +43,16 @@ class MqttOutput(Output):
         if location not in self._locations:
             return False
 
-        if 'message' in action:
-            return True
-
-        if 'music' in action:
-            return True
-
-        return False
+        return True
 
     async def execute(self, location: str, action: Action) -> None:
+        if not self.is_action_required_for_location(location, action):
+            return
+
         await self._execute(
             '/action/%s/' % location,
             action,
         )
-
-        if 'message' in action:
-            message = action['message']
-
-            await self.say(
-                location=location,
-                text=message['text'])
-
-        if 'music' in action:
-            music = action['music']
-
-            await self.music_play(
-                location=location,
-                play_list=music['play_list'])
 
     async def _execute(self, topic: str, data: JsonType) -> None:
         logger.debug("About to publish %r to %s" % (data, topic))
@@ -82,39 +65,3 @@ class MqttOutput(Output):
             )
         except ClientException:
             logger.exception("The client operation failed.")
-
-    async def say(self, location: str, text: str) -> None:
-        if location not in self._locations:
-            return
-        logger.debug("%s: About to say '%s' (MQTT).", location, text)
-        await self._execute(
-            '/say/%s/' % location,
-            text,
-        )
-
-    async def play(self, location: str, sound: str) -> None:
-        if location not in self._locations:
-            return
-        logger.debug("%s: About to play sound '%s' (MQTT).", location, sound)
-        await self._execute(
-            '/play/%s/' % location,
-            sound,
-        )
-
-    async def music_play(self, location: str, play_list: str) -> None:
-        if location not in self._locations:
-            return
-        logger.debug("%s: About to play music '%s' (MQTT).", location, play_list)
-        await self._execute(
-            '/play_music/%s/' % location,
-            play_list,
-        )
-
-    async def music_stop(self, location: str) -> None:
-        if location not in self._locations:
-            return
-        logger.debug("%s: About to stop music (MQTT).", location)
-        await self._execute(
-            '/stop_music/%s/' % location,
-            None,
-        )

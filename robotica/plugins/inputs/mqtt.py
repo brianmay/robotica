@@ -9,7 +9,7 @@ from hbmqtt.client import MQTTClient, ClientException, QOS_0
 from robotica.executor import Executor
 from robotica.plugins.inputs import Input
 from robotica.schedule import Schedule
-from robotica.types import Config
+from robotica.types import Config, Action
 
 logger = logging.getLogger(__name__)
 
@@ -50,16 +50,21 @@ class MqttInput(Input):
 
     def _get_topics(self) -> List[Tuple[str, int]]:
         topics = [
-            ('/execute/', QOS_0),
             ('/schedule/', QOS_0),
         ]
-        if self._schedule is not None:
+        if self._schedule is None:
             topics += [
                 ('/action/#', QOS_0),
             ]
+        else:
+            topics += [
+                ('/execute/', QOS_0),
+            ]
         return topics
 
-    async def _execute(self, data: JsonType) -> None:
+    async def _process_execute(self, data: JsonType) -> None:
+        if self._schedule is None:
+            return
 
         reply_topic = data.get('reply_topic', None)
         server = platform.node()
@@ -93,13 +98,14 @@ class MqttInput(Input):
             await self._schedule.set_schedule(data)
             self._schedule.save_schedule()
 
-    async def _process_action(self, location: str, data: JsonType) -> None:
+    async def _process_action(self, location: str, action: Action) -> None:
         if self._schedule is None:
-            await self._executor.do_actions(set(location), data)
+            await self._executor.do_action({location}, action)
 
     async def _process(self, topic: str, data: JsonType) -> None:
+        logger.info("Received %s %s", topic, data)
         if topic.startswith("/execute/"):
-            await self._execute(data)
+            await self._process_execute(data)
         if topic.startswith("/schedule/"):
             await self._process_schedule(data)
         if topic.startswith("/action/"):
