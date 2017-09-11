@@ -10,6 +10,7 @@ inputs:
     plugin: robotica.plugins.inputs.mqtt.MqttInput
     disabled: false
     broker_url: mqtt://localhost
+    locations: []
 outputs:
   audio:
     plugin: robotica.plugins.outputs.audio.AudioOutput

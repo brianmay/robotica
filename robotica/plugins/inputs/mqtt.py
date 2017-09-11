@@ -33,6 +33,7 @@ class MqttInput(Input):
         )
         self._disabled = self._config['disabled']
         self._broker_url = self._config['broker_url']
+        self._locations = self._config.get('locations', []) or []
         self._task = None  # type: Optional[asyncio.Task]
         self._client = MQTTClient()
 
@@ -54,7 +55,8 @@ class MqttInput(Input):
         ]
         if self._schedule is None:
             topics += [
-                ('/action/#', QOS_0),
+                ('/action/%s/' % location, QOS_0)
+                for location in self._locations
             ]
         else:
             topics += [
