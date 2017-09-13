@@ -33,7 +33,7 @@ outputs:
         - mpc stop
   lifx:
     plugin: robotica.plugins.outputs.lifx.LifxOutput
-    disabled: False
+    disabled: True
     locations:
       Brian:
       - Brian
@@ -45,5 +45,4 @@ outputs:
     plugin: robotica.plugins.outputs.mqtt.MqttOutput
     disabled: false
     broker_url: mqtt://localhost
-    locations:
-        Brian:
+    locations: []
