@@ -41,10 +41,6 @@ outputs:
     locations:
       Brian:
       - Brian
-      Dining:
-      - Kitchen
-      Twins:
-      - Twins
   mqtt:
     plugin: robotica.plugins.outputs.mqtt.MqttOutput
     disabled: false
