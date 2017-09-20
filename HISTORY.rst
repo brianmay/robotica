@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.30 (UNRELEASED)
+-------------------
+
+Added
+~~~~~
+* Abilty to turn lights on and set color.
+* Pause music before annoucements and resume if required.
+
+
 0.1.29 (2017-09-13)
 -------------------
 
