@@ -62,7 +62,7 @@ class AudioOutput(Output):
                 play_list=music['play_list'])
 
     @staticmethod
-    async def _execute(cmd_list: List[str], params: Dict[str, str]) -> None:
+    async def _execute(cmd_list: List[str], params: Dict[str, str]) -> int:
         for cmd in cmd_list:
             split = [
                 value.format(**params) for value in shlex.split(cmd)
@@ -72,19 +72,28 @@ class AudioOutput(Output):
             result = await process.wait()
             if result != 0:
                 logger.info("Command %s returned %d", split, result)
+                return result
+        return 0
 
     async def say(self, location: str, text: str) -> None:
         location_config = self._locations.get(location, {})
         say_cmd = location_config.get('say_cmd', [])
+        music_pause_cmd = location_config.get('music_pause_cmd', [])
+        music_resume_cmd = location_config.get('music_resume_cmd', [])
         if len(say_cmd) == 0:
             return
         logger.debug("%s: About to say '%s'.", location, text)
-        await self.music_stop(location)
+
+        paused = await self._execute(music_pause_cmd, {}) == 0
+
         await self.play(location, 'prefix')
         await self._execute(say_cmd, {'text': text})
         await self.play(location, 'repeat')
         await self._execute(say_cmd, {'text': text})
         await self.play(location, 'postfix')
+
+        if paused:
+            await self._execute(music_resume_cmd, {})
 
     async def play(self, location: str, sound: str) -> None:
         sound_file = self._config['sounds'].get(sound)

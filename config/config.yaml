@@ -31,6 +31,10 @@ outputs:
         - mpc play
         music_stop_cmd:
         - mpc stop
+        music_pause_cmd:
+        - mpc pause-if-playing
+        music_resume_cmd:
+        - mpc play
   lifx:
     plugin: robotica.plugins.outputs.lifx.LifxOutput
     disabled: True
