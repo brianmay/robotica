@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Set, Dict
+from typing import Set, Dict, Optional
 
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
 
@@ -62,6 +62,20 @@ class LifxOutput(Output):
                 await self.wake_up(location=location)
             elif lights_action == "turn_off":
                 await self.turn_off(location=location)
+            elif lights_action == "turn_on":
+                color = None
+                if 'color' in lights:
+                    try:
+                        color = Color(
+                            hue=int(lights['color']['hue']),
+                            saturation=int(lights['color']['saturation']),
+                            brightness=int(lights['color']['brightness']),
+                            kelvin=int(lights['color']['kelvin'])
+                        )
+                    except IndexError:
+                        logger.error("Ignoring invalid color %s.", lights['color'])
+
+                await self.turn_on(location=location, color=color)
             else:
                 logger.error("Unknown action '%s'.", action)
 
@@ -102,5 +116,12 @@ class LifxOutput(Output):
 
     async def turn_off(self, location: str) -> None:
         lights = self._get_lights_from_location(location)
-        logger.info("Lifx flash for lights %s.", lights)
+        logger.info("Lifx turn off lights %s.", lights)
         await lights.set_light_power(False)
+
+    async def turn_on(self, location: str, color: Optional[Color]) -> None:
+        lights = self._get_lights_from_location(location)
+        logger.info("Lifx turn on lights %s.", lights)
+        if color is not None:
+            await lights.set_color(color)
+        await lights.set_light_power(True)
