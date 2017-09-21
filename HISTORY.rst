@@ -9,6 +9,7 @@ Added
 ~~~~~
 * Abilty to turn lights on and set color.
 * Pause music before annoucements and resume if required.
+* Ability to play sound files.
 
 
 0.1.29 (2017-09-13)

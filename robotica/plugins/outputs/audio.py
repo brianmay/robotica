@@ -38,6 +38,9 @@ class AudioOutput(Output):
         if location not in self._locations:
             return False
 
+        if 'sound' in action:
+            return True
+
         if 'message' in action:
             return True
 
@@ -47,19 +50,39 @@ class AudioOutput(Output):
         return False
 
     async def execute(self, location: str, action: Action) -> None:
+        location_config = self._locations.get(location, {})
+        music_pause_cmd = location_config.get('music_pause_cmd', [])
+        music_resume_cmd = location_config.get('music_resume_cmd', [])
+
+        # Stop music if requested otherwise pause music.
+        if 'music' in action and action['music'] is None:
+            await self.music_stop(location=location)
+            paused = False
+        else:
+            paused = await self._execute(music_pause_cmd, {}) == 0
+
+        # Play requested sound.
+        if 'sound' in action and action['sound'] is not None:
+            sound = action['sound']
+            await self.play_sound(
+                location=location,
+                sound=sound)
+
+        # Play requested message.
         if 'message' in action:
             message = action['message']
-
             await self.say(
                 location=location,
                 text=message['text'])
 
-        if 'music' in action:
+        # Start requested music or resume if paused.
+        if 'music' in action and action['music'] is not None:
             music = action['music']
-
             await self.music_play(
                 location=location,
                 play_list=music['play_list'])
+        elif paused:
+            await self._execute(music_resume_cmd, {})
 
     @staticmethod
     async def _execute(cmd_list: List[str], params: Dict[str, str]) -> int:
@@ -78,24 +101,17 @@ class AudioOutput(Output):
     async def say(self, location: str, text: str) -> None:
         location_config = self._locations.get(location, {})
         say_cmd = location_config.get('say_cmd', [])
-        music_pause_cmd = location_config.get('music_pause_cmd', [])
-        music_resume_cmd = location_config.get('music_resume_cmd', [])
         if len(say_cmd) == 0:
             return
         logger.debug("%s: About to say '%s'.", location, text)
 
-        paused = await self._execute(music_pause_cmd, {}) == 0
-
-        await self.play(location, 'prefix')
+        await self.play_sound(location, 'prefix')
         await self._execute(say_cmd, {'text': text})
-        await self.play(location, 'repeat')
+        await self.play_sound(location, 'repeat')
         await self._execute(say_cmd, {'text': text})
-        await self.play(location, 'postfix')
+        await self.play_sound(location, 'postfix')
 
-        if paused:
-            await self._execute(music_resume_cmd, {})
-
-    async def play(self, location: str, sound: str) -> None:
+    async def play_sound(self, location: str, sound: str) -> None:
         sound_file = self._config['sounds'].get(sound)
         if not sound_file:
             return
@@ -103,7 +119,7 @@ class AudioOutput(Output):
         play_cmd = location_config.get('play_cmd', [])
         if len(play_cmd) == 0:
             return
-        logger.debug("%s: About to play sound '%s'.", location, sound_file)
+        logger.debug("%s: About to play_sound sound '%s'.", location, sound_file)
         await self._execute(play_cmd, {'file': sound_file})
 
     async def music_play(self, location: str, play_list: str) -> None:
@@ -111,7 +127,7 @@ class AudioOutput(Output):
         music_play_cmd = location_config.get('music_play_cmd', [])
         if len(music_play_cmd) == 0:
             return
-        logger.debug("%s: About to play music '%s'.", location, play_list)
+        logger.debug("%s: About to play_sound music '%s'.", location, play_list)
         await self._execute(music_play_cmd, {'play_list': play_list})
 
     async def music_stop(self, location: str) -> None:
