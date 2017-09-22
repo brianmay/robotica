@@ -1,7 +1,7 @@
 APScheduler==3.3.1
 click==6.7
 click-log==0.2.0
-aiolifxc==0.5.5
+aiolifxc==0.5.6
 PyYAML==3.12
 python-dateutil==2.6.1
 aiohttp==2.2.5
