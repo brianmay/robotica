@@ -66,7 +66,7 @@ class AudioOutput(Output):
             sound = action['sound']
             await self.play_sound(
                 location=location,
-                sound=sound)
+                sound=sound['name'])
 
         # Play requested message.
         if 'message' in action:
