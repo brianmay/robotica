@@ -28,11 +28,10 @@ class LifxOutput(Output):
     def start(self) -> None:
         if not self._disabled:
             logger.debug("LIFX enabled.")
-            self._task = self._lights.start_discover()
+            self._lights.start_discover()
 
     def stop(self) -> None:
-        if not self._disabled:
-            self._task.cancel()
+        pass
 
     def _get_labels_for_location(self, location: str) -> Set[str]:
         labels = set(self._locations.get(location, []))
