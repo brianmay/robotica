@@ -4,14 +4,14 @@
 import asyncio
 import importlib
 import logging
-from typing import List, Any
+from typing import List, Any  # NOQA
 
 import click
 import click_log
 import yaml
 
 from robotica.executor import Executor
-from robotica.plugins import Plugin
+from robotica.plugins import Plugin  # NOQA
 from robotica.plugins.inputs import Input
 from robotica.plugins.outputs import Output
 from robotica.schedule import Schedule

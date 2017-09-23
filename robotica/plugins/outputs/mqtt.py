@@ -2,7 +2,6 @@
 import asyncio
 import json
 import logging
-from typing import Dict
 
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 

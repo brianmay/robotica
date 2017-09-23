@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import platform
-from typing import Any, Optional, Dict, Tuple, List
+from typing import Any, Optional, Tuple, List
 
 from hbmqtt.client import MQTTClient, ClientException, QOS_0
 

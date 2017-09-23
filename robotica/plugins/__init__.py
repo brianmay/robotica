@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Dict
 
 from robotica.types import Config
 
@@ -23,4 +22,3 @@ class Plugin:
 
     def stop(self) -> None:
         pass
-

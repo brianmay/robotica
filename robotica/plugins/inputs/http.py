@@ -3,7 +3,7 @@ import base64
 import datetime
 import logging
 from json import JSONDecodeError
-from typing import Awaitable, Callable, Dict, Optional
+from typing import Awaitable, Callable, Optional
 
 from aiohttp import web
 

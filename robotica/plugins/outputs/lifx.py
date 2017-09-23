@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Set, Dict, Optional
+from typing import Set, Optional
 
 from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
 
