@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import Set, Optional
 
-from aiolifxc.aiolifx import Lights, Light, Color, DeviceOffline
+from aiolifxc import Lights, Light, Color, LightOffline
 
 from robotica.plugins.outputs import Output
 from robotica.types import Action, Config
@@ -84,22 +84,22 @@ class LifxOutput(Output):
         return lights
 
     async def wake_up(self, location: str) -> None:
-        async def single_device(device: Light) -> None:
+        async def single_light(light: Light) -> None:
             try:
-                power = await device.get_power()
+                power = await light.get_power()
                 if not power:
-                    await device.set_color(
+                    await light.set_color(
                         Color(hue=0, saturation=0, brightness=0, kelvin=2500))
-                await device.set_power(True)
-                await device.set_color(
+                await light.set_power(True)
+                await light.set_color(
                     Color(hue=0, saturation=0, brightness=100, kelvin=2500),
                     duration=60000)
-            except DeviceOffline:
-                logger.error("Light is offline %s.", device)
+            except LightOffline:
+                logger.error("Light is offline %s.", light)
 
         lights = self._get_lights_from_location(location)
         logger.info("Lifx wakeup for lights %s.", lights)
-        await lights.do_for_every_device(Light, single_device)
+        await lights.do_for_every_light(single_light)
 
     async def flash(self, location: str) -> None:
         lights = self._get_lights_from_location(location)

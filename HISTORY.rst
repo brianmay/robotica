@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.31 (UNRELEASED)
+-------------------
+
+Changed
+~~~~~~~
+* Update to latest aiolifxc.
+
+
 0.1.30 (2017-09-22)
 -------------------
 
