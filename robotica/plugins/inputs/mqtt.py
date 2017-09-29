@@ -126,7 +126,7 @@ class MqttInput(Input):
 
                 try:
                     data = json.loads(raw_data)
-                    await self._process(topic, data)
+                    self._loop.create_task(self._process(topic, data))
                 except json.JSONDecodeError as e:
                     logger.error("JSON Error %s" % e)
 

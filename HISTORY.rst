@@ -5,6 +5,10 @@ History
 0.1.31 (UNRELEASED)
 -------------------
 
+Added
+~~~~~
+* Added server side timer.
+
 Changed
 ~~~~~~~
 * Update to latest aiolifxc.
