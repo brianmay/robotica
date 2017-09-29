@@ -76,7 +76,7 @@ class MqttInput(Input):
                 await client.publish(reply_topic, raw_data, qos=QOS_0)
 
         try:
-            locations = data['locations']
+            locations = set(data['locations'])
             actions = data['actions']
         except KeyError:
             logger.error("Required value missing.")

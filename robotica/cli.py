@@ -66,6 +66,7 @@ def main(config: str, schedule: str) -> None:
     else:
         schedule_obj = Schedule(schedule, executor_obj)
         schedule_obj.start()
+        executor_obj.set_schedule(schedule_obj)
 
     for name in input_dict.keys():
         input_plugin_config = input_dict[name]

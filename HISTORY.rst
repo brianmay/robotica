@@ -8,6 +8,7 @@ History
 Added
 ~~~~~
 * Added server side timer.
+* Add ability to schedule template at arbitrary time.
 
 Changed
 ~~~~~~~

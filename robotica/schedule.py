@@ -70,7 +70,7 @@ class Schedule:
         scheduler = AsyncIOScheduler()
         scheduler.start()
         self._scheduler = scheduler
-        self.add_tasks_to_scheduler(scheduler)
+        self.add_tasks_to_scheduler()
 
     def stop(self) -> None:
         pass
@@ -152,6 +152,24 @@ class Schedule:
             result = result + entry_result
 
         return result
+
+    async def add_template(self, locations: Set[str], template_name: str) -> None:
+        if template_name not in self._schedule['template']:
+            return
+
+        dt = datetime.datetime.now()
+        date = dt.date()
+        time = dt.time()
+        hhmm = datetime.time(hour=time.hour, minute=time.minute)
+        schedule = self._expand_template(date, time, locations, template_name)
+
+        self._add_list_to_scheduler([
+            task for task in schedule if task.time > hhmm
+        ])
+
+        for task in schedule:
+            if task.time == hhmm:
+                await self._do_task(task)
 
     def get_days_for_date(self, date: datetime.date) -> List[str]:
         results = []  # type: List[str]
@@ -276,28 +294,40 @@ class Schedule:
         result = sorted(result, key=lambda e: e.time)
         return result
 
-    async def do_task(self, entry: TimeEntry) -> None:
+    async def _do_task(self, entry: TimeEntry) -> None:
         logger.info("%s: Waking up for %s.", datetime.datetime.now(), entry)
         await self._executor.do_actions(entry.locations, entry.actions)
 
     async def _prepare_for_day(self, scheduler: BaseScheduler) -> None:
         logger.info("%s: Updating schedule.", datetime.datetime.now())
-        self.add_tasks_to_scheduler(scheduler)
+        self.add_tasks_to_scheduler()
 
-    def add_tasks_to_scheduler(self, scheduler: BaseScheduler) -> None:
+    def _add_list_to_scheduler(self, schedule: List[TimeEntry]) -> None:
+        if self._scheduler is None:
+            return
+
+        for entry in schedule:
+            logger.debug("Adding entry '%s' to scheduler.", entry)
+            hour = entry.time.hour
+            minute = entry.time.minute
+
+            scheduler = self._scheduler
+            scheduler.add_job(
+                self._do_task, 'cron', hour=hour, minute=minute,
+                kwargs={'entry': entry}
+            )
+
+    def add_tasks_to_scheduler(self) -> None:
+        if self._scheduler is None:
+            return
+
         date = datetime.date.today()
         schedule = self.get_schedule_for_date(date)
 
+        scheduler = self._scheduler
         scheduler.remove_all_jobs()
         scheduler.add_job(
             self._prepare_for_day, 'cron', hour="00", minute="00",
             kwargs={'scheduler': scheduler}
         )
-        for entry in schedule:
-            logger.debug("Adding entry '%s' to scheduler.", entry)
-            hour = entry.time.hour
-            minute = entry.time.minute
-            scheduler.add_job(
-                self.do_task, 'cron', hour=hour, minute=minute,
-                kwargs={'entry': entry}
-            )
+        self._add_list_to_scheduler(schedule)

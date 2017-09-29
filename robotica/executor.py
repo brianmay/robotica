@@ -2,12 +2,15 @@
 import asyncio
 import time
 import logging
-from typing import Dict, Set, List  # NOQA
+from typing import Dict, Set, List, Optional  # NOQA
+from typing import TYPE_CHECKING
 
 import math
 
 from robotica.plugins.outputs import Output
 from robotica.types import Action
+if TYPE_CHECKING:
+    from robotica.schedule import Schedule  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -191,6 +194,10 @@ class Executor:
         self._outputs = []  # type: List[Output]
         self._lock = asyncio.Lock()
         self._timers = {}  # type: Dict[str, Timer]
+        self._schedule = None  # type: Optional['Schedule']
+
+    def set_schedule(self, schedule: 'Schedule') -> None:
+        self._schedule = schedule
 
     def add_output(self, output: Output) -> None:
         self._outputs.append(output)
@@ -200,6 +207,8 @@ class Executor:
 
         # if timer action, we must process it everywhere.
         if 'timer' in action:
+            return locations
+        if 'template' in action:
             return locations
 
         required_locations = set([
@@ -236,6 +245,11 @@ class Executor:
                     name=timer_name,
                 )
                 await self._timers[timer_name].execute(minutes)
+
+        if 'template' in action and self._schedule is not None:
+            template_details = action['template']
+            template_name = template_details['name']
+            await self._schedule.add_template(locations, template_name)
 
         with await self._lock:
             coros = [
