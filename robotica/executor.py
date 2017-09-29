@@ -43,7 +43,8 @@ class Timer:
     async def _warn(
             self, *,
             time_left: int, time_total: int,
-            time_finish: float):
+            epoch_minute: float,
+            epoch_finish: float):
         logger.info(
             "timer warn %s: time left %d, time total %s",
             self._name, time_left, time_total)
@@ -53,7 +54,8 @@ class Timer:
                 'name': self._name,
                 'time_left': time_left,
                 'time_total': time_total,
-                'time_finish': time_finish,
+                'epoch_minute': epoch_minute,
+                'epoch_finish': epoch_finish,
             },
         }
 
@@ -62,7 +64,8 @@ class Timer:
     async def _update(
             self, *,
             time_left: int, time_total: int,
-            time_finish: float):
+            epoch_minute: float,
+            epoch_finish: float):
         logger.info(
             "timer %s: time left %d, time total %s",
             self._name, time_left, time_total)
@@ -72,7 +75,8 @@ class Timer:
                 'name': self._name,
                 'time_left': time_left,
                 'time_total': time_total,
-                'time_finish': time_finish,
+                'epoch_minute': epoch_minute,
+                'epoch_finish': epoch_finish,
             },
             'sound': {
                 'name': "beep"
@@ -113,7 +117,8 @@ class Timer:
             await self._update(
                 time_left=total_minutes,
                 time_total=total_minutes,
-                time_finish=timer_stop)
+                epoch_minute=current_time,
+                epoch_finish=timer_stop)
 
             current_time = time.time()
             twait = timer_stop - current_time
@@ -146,7 +151,8 @@ class Timer:
                 await self._warn(
                     time_left=minutes_left,
                     time_total=total_minutes,
-                    time_finish=timer_stop)
+                    epoch_minute=next_minute,
+                    epoch_finish=timer_stop)
 
                 # wait until minute
                 current_time = time.time()
@@ -167,7 +173,8 @@ class Timer:
                 await self._update(
                     time_left=minutes_left,
                     time_total=total_minutes,
-                    time_finish=timer_stop)
+                    epoch_minute=next_minute,
+                    epoch_finish=timer_stop)
 
                 # calculate wait time
                 current_time = time.time()
