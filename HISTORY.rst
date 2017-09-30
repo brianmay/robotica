@@ -2,6 +2,16 @@
 History
 =======
 
+
+0.1.32 (2017-09-30)
+-------------------
+
+Changed
+~~~~~~~
+* Don't send MQTT message on timer=0 minutes.
+* Send more data on MQTT messages.
+
+
 0.1.31 (2017-09-29)
 -------------------
 

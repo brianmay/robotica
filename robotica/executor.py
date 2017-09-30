@@ -110,19 +110,34 @@ class Timer:
 
             current_time = time.time()
             timer_stop = current_time + total_minutes * one_minute
+            next_minute = current_time
 
             logger.info(
                 "timer %s: started at %d minutes.",
                 self._name, total_minutes)
-            await self._update(
-                time_left=total_minutes,
-                time_total=total_minutes,
-                epoch_minute=current_time,
-                epoch_finish=timer_stop)
 
-            current_time = time.time()
-            twait = timer_stop - current_time
-            while twait > 0:
+            while True:
+                # calculate wait time
+                current_time = time.time()
+                twait = timer_stop - current_time
+
+                if twait <= 0:
+                    break
+
+                # time: minute
+                current_time = time.time()
+                minutes_left = int(
+                    math.ceil(
+                        (timer_stop - current_time)
+                        / one_minute
+                    )
+                )
+                await self._update(
+                    time_left=minutes_left,
+                    time_total=total_minutes,
+                    epoch_minute=next_minute,
+                    epoch_finish=timer_stop)
+
                 logger.debug(
                     "timer %s: %.1f to go to.",
                     self._name, twait)
@@ -161,24 +176,6 @@ class Timer:
                     "timer %s: waiting %.1f seconds to minute, %.1f to go.",
                     self._name, next_minute - current_time, twait)
                 await self._sleep_until_time(next_minute)
-
-                # time: minute
-                current_time = time.time()
-                minutes_left = int(
-                    math.ceil(
-                        (timer_stop - current_time)
-                        / one_minute
-                    )
-                )
-                await self._update(
-                    time_left=minutes_left,
-                    time_total=total_minutes,
-                    epoch_minute=next_minute,
-                    epoch_finish=timer_stop)
-
-                # calculate wait time
-                current_time = time.time()
-                twait = timer_stop - current_time
 
             logger.info(
                 "timer %s: stopped after %d minutes.",
