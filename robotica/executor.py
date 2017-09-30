@@ -249,11 +249,13 @@ class Executor:
                     name=timer_name,
                 )
                 await self._timers[timer_name].execute(minutes)
+            return
 
         if 'template' in action and self._schedule is not None:
             template_details = action['template']
             template_name = template_details['name']
             await self._schedule.add_template(locations, template_name)
+            return
 
         with await self._lock:
             coros = [

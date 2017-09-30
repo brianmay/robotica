@@ -2,6 +2,13 @@
 History
 =======
 
+0.1.33 (2017-09-30)
+-------------------
+
+Changed
+~~~~~~~
+* Don't send MQTT timer or template messages, these are handled locally.
+
 
 0.1.32 (2017-09-30)
 -------------------
