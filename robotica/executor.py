@@ -145,6 +145,10 @@ class Timer:
                 current_time = time.time()
                 twait = timer_stop - current_time
 
+                logger.debug(
+                    "timer %s: %.1f to go to.",
+                    self._name, twait)
+
                 if twait <= 0:
                     break
 
@@ -161,10 +165,6 @@ class Timer:
                     time_total=total_minutes,
                     epoch_minute=next_minute,
                     epoch_finish=timer_stop)
-
-                logger.debug(
-                    "timer %s: %.1f to go to.",
-                    self._name, twait)
 
                 # calculate absolute times
                 current_time = time.time()
