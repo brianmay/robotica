@@ -1,6 +1,6 @@
 """ Robotica Schedule. """
 import datetime
-from typing import Dict, List, Set, Any, Optional  # NOQA
+from typing import Dict, List, Set, Any, Optional, Tuple  # NOQA
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -76,10 +76,11 @@ class Schedule:
         pass
 
     def _parse_entry(
-            self,
+            self, *,
             date: datetime.date,
+            prev_time: Optional[datetime.time],
             locations: Set[str], entry: Dict,
-            time_offset: Optional[datetime.time]) -> List[TimeEntry]:
+            time_offset: Optional[datetime.time]) -> Tuple[List[TimeEntry], datetime.time]:
         result = []  # type: List[TimeEntry]
 
         locations = locations & set(entry.get('locations', locations))
@@ -130,8 +131,22 @@ class Schedule:
                 locations=required_locations,
                 actions=required_actions,
             ))
+            if 'timer' in entry:
+                assert prev_time is not None
+                timer = entry['timer'] or {}
+                actions = [{
+                    'timer': {
+                        'name': timer.get('name', 'default'),
+                        'end_time': parsed_time.strftime("%H:%M"),
+                    }
+                }]
+                result.append(TimeEntry(
+                    time=prev_time,
+                    locations=required_locations,
+                    actions=actions,
+                ))
 
-        return result
+        return result, parsed_time
 
     def _expand_template(
             self, date: datetime.date, time: datetime.time, locations: Set[str],
@@ -141,10 +156,12 @@ class Schedule:
         template = self._schedule['template'][template_name]
         template_schedule = template['schedule']
 
+        prev_time = None  # type: Optional[datetime.time]
         for template_entry in template_schedule:
 
-            entry_result = self._parse_entry(
+            entry_result, prev_time = self._parse_entry(
                 date=date,
+                prev_time=prev_time,
                 locations=locations,
                 entry=template_entry,
                 time_offset=time,
@@ -282,9 +299,11 @@ class Schedule:
             locations = set(self._schedule['day'][day]['locations'])
             schedule = self._schedule['day'][day]['schedule']
 
+            prev_time = None  # type: Optional[datetime.time]
             for entry in schedule:
-                entry_result = self._parse_entry(
+                entry_result, prev_time = self._parse_entry(
                     date=date,
+                    prev_time=prev_time,
                     locations=locations,
                     entry=entry,
                     time_offset=None,

@@ -1,5 +1,6 @@
 """ Robotica Schedule. """
 import asyncio
+import datetime
 import time
 import logging
 from typing import Dict, Set, List, Optional  # NOQA
@@ -28,6 +29,9 @@ class Timer:
         self._locations = locations
         self._name = name
         self._timer_running = False
+        self._timer_stop = None  # type: Optional[float]
+        self._early_warning = 3
+        self._one_minute = 60
 
     @property
     def is_running(self) -> bool:
@@ -95,7 +99,21 @@ class Timer:
             self._name, twait)
         await asyncio.sleep(twait)
 
-    async def execute(self, total_minutes: int):
+    def set_minutes(self, total_minutes: int) -> None:
+        assert not self._timer_running
+        current_time = time.time()
+        self._timer_stop = current_time + total_minutes * self._one_minute
+
+    def set_end_time(self, time_str: str) -> None:
+        assert not self._timer_running
+        hh, mm = time_str.split(":", maxsplit=1)
+        hhmm = datetime.time(hour=int(hh), minute=int(mm))
+        date = datetime.date.today()
+        dt = datetime.datetime.combine(date=date, time=hhmm)
+        self._timer_stop = dt.timestamp()
+
+    async def execute(self) -> None:
+        assert self._timer_stop is not None
 
         if self._timer_running:
             await self._error("already set.")
@@ -105,12 +123,18 @@ class Timer:
         try:
             self._timer_running = True
 
-            early_warning = 3
-            one_minute = 60
+            early_warning = self._early_warning
+            one_minute = self._one_minute
 
             current_time = time.time()
-            timer_stop = current_time + total_minutes * one_minute
+            timer_stop = self._timer_stop
             next_minute = current_time
+            total_minutes = int(
+                math.ceil(
+                    (timer_stop - current_time)
+                    / one_minute
+                )
+            )
 
             logger.info(
                 "timer %s: started at %d minutes.",
@@ -232,8 +256,7 @@ class Executor:
 
         if 'timer' in action:
             timer_details = action['timer']
-            timer_name = timer_details['name']
-            minutes = int(timer_details['minutes'])
+            timer_name = timer_details.get('name', 'default')
 
             if (timer_name in self._timers and
                     self._timers[timer_name].is_running):
@@ -249,7 +272,15 @@ class Executor:
                     locations=required_locations,
                     name=timer_name,
                 )
-                await self._timers[timer_name].execute(minutes)
+                if 'minutes' in timer_details:
+                    minutes = int(timer_details['minutes'])
+                    self._timers[timer_name].set_minutes(minutes)
+                elif 'end_time' in timer_details:
+                    end_time = timer_details['end_time']
+                    self._timers[timer_name].set_end_time(end_time)
+                else:
+                    assert False
+                await self._timers[timer_name].execute()
             return
 
         if 'template' in action and self._schedule is not None:
