@@ -5,4 +5,4 @@ aiolifxc==1.0.0
 PyYAML==3.12
 python-dateutil==2.6.1
 aiohttp==2.2.5
-hbmqtt==0.9
+hbmqtt==0.9.1
