@@ -38,6 +38,14 @@ def _load_class(class_name: str) -> Any:
 @click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config or None.')
 @click_log.simple_verbosity_option(logger)
 def main(config: str, schedule: str) -> None:
+    pass
+
+
+# @click.command()
+# @click.option('--config', default="config/config.yaml", help='Path to config.')
+# @click.option('--schedule', default="config/schedule.yaml", help='Path to schedule config or None.')
+# @click_log.simple_verbosity_option(logger)
+def main2(config: str, schedule: str) -> None:
     """Console script for robotica."""
     with open(config, "r") as file:
         config_dict = yaml.safe_load(file)

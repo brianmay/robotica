@@ -1,0 +1,6 @@
+from typing import Callable
+
+
+Func = Callable[..., None]
+def command() -> Callable[[Func], Func]: ...
+def option(name: str, default: str, help: str) -> Callable[[Func], Func]: ...
