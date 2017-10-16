@@ -13,6 +13,8 @@ recursive-exclude * *.py[co]
 recursive-include config *.yaml
 recursive-include robotica *.py
 recursive-include yaml *.pyi
+recursive-include click *.pyi
+recursive-include click_log *.pyi
 
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
 recursive-exclude docs/_build *
