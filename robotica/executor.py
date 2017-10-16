@@ -48,12 +48,13 @@ class Timer:
             self, *,
             time_left: int, time_total: int,
             epoch_minute: float,
-            epoch_finish: float):
+            epoch_finish: float,
+            action: Action):
         logger.info(
             "timer warn %s: time left %d, time total %s",
             self._name, time_left, time_total)
 
-        action = {
+        new_action = {
             'timer_warn': {
                 'name': self._name,
                 'time_left': time_left,
@@ -62,19 +63,21 @@ class Timer:
                 'epoch_finish': epoch_finish,
             },
         }
+        new_action.update(action)
 
-        await self._executor.do_action(self._locations, action)
+        await self._executor.do_action(self._locations, new_action)
 
     async def _update(
             self, *,
             time_left: int, time_total: int,
             epoch_minute: float,
-            epoch_finish: float):
+            epoch_finish: float,
+            action: Action):
         logger.info(
             "timer %s: time left %d, time total %s",
             self._name, time_left, time_total)
 
-        action = {
+        new_action = {
             'timer_status': {
                 'name': self._name,
                 'time_left': time_left,
@@ -90,7 +93,9 @@ class Timer:
         if time_left % 5 == 0 and time_left > 0:
             action['message'] = {'text': '%d minutes' % time_left}
 
-        await self._executor.do_action(self._locations, action)
+        new_action.update(action)
+
+        await self._executor.do_action(self._locations, new_action)
 
     async def _sleep_until_time(self, new_time: float):
         twait = max(new_time - time.time(), 0)
@@ -112,7 +117,7 @@ class Timer:
         dt = datetime.datetime.combine(date=date, time=hhmm)
         self._timer_stop = dt.timestamp()
 
-    async def execute(self) -> None:
+    async def execute(self, action: Action) -> None:
         assert self._timer_stop is not None
 
         if self._timer_running:
@@ -164,7 +169,9 @@ class Timer:
                     time_left=minutes_left,
                     time_total=total_minutes,
                     epoch_minute=next_minute,
-                    epoch_finish=timer_stop)
+                    epoch_finish=timer_stop,
+                    action=action)
+                action = {}
 
                 # calculate absolute times
                 current_time = time.time()
@@ -192,7 +199,8 @@ class Timer:
                     time_left=minutes_left,
                     time_total=total_minutes,
                     epoch_minute=next_minute,
-                    epoch_finish=timer_stop)
+                    epoch_finish=timer_stop,
+                    action={})
 
                 # wait until minute
                 current_time = time.time()
@@ -266,6 +274,9 @@ class Executor:
                     "timer %s: already running" % timer_name)
 
             else:
+                timer_action = dict(action)
+                del timer_action['timer']
+
                 self._timers[timer_name] = Timer(
                     loop=self._loop,
                     executor=self,
@@ -280,7 +291,7 @@ class Executor:
                     self._timers[timer_name].set_end_time(end_time)
                 else:
                     assert False
-                await self._timers[timer_name].execute()
+                await self._timers[timer_name].execute(timer_action)
             return
 
         if 'template' in action and self._schedule is not None:
