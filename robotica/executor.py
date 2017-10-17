@@ -42,11 +42,20 @@ class Timer:
         if self._task is not None:
             self._task.cancel()
 
-    async def _error(self, message: str):
-        logger.error('timer %s: %s', self._name, message)
+    async def _cancel(self, message: str):
+
+        logger.error('timer %s: cancelled: %s', self._name, message)
+
         action = {
+            'timer_cancel': {
+                'name': self._name,
+            },
+            'sound': {
+                'name': "cancelled"
+            },
             'message': {'text': 'The timer %s %s' % (self._name, message)}
         }
+
         await self._executor.do_action(self._locations, action)
 
     async def _warn(
@@ -126,7 +135,7 @@ class Timer:
         assert self._timer_stop is not None
 
         if self._timer_running:
-            await self._error("already set.")
+            await self._cancel("already set.")
             raise RuntimeError(
                 "timer %s: already running, cannot execute" % self._name)
 
@@ -221,10 +230,11 @@ class Timer:
                 self._name, total_minutes)
 
         except asyncio.CancelledError:
+            await self._cancel("Cancelled.")
             raise
         except Exception as e:
             logger.exception("Timer encountered as error.")
-            await self._error("crashed.")
+            await self._cancel("Crashed.")
         finally:
             self._timer_running = False
             self._task = None
