@@ -175,6 +175,7 @@ class Timer:
 
                 # calculate absolute times
                 current_time = time.time()
+                twait = timer_stop - current_time
                 seconds_to_next_minute = twait % one_minute
                 if seconds_to_next_minute == 0:
                     seconds_to_next_minute = one_minute
