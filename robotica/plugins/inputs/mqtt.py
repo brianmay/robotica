@@ -87,8 +87,12 @@ class MqttInput(Input):
             await reply({'status': 'processing', 'server': server, })
             await self._executor.do_actions(locations, actions)
             await reply({'status': 'success', 'server': server, })
+        except asyncio.CancelledError:
+            logger.warning('Task was cancelled.')
+            await reply({'status': 'cancelled', 'server': server, })
+            raise
         except Exception as e:
-            logger.exception("Error in _execute")
+            logger.exception("Error in _process_execute")
             await reply({'status': 'error', 'server': server, })
 
         return

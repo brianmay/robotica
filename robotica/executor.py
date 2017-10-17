@@ -32,10 +32,15 @@ class Timer:
         self._timer_stop = None  # type: Optional[float]
         self._early_warning = 3
         self._one_minute = 60
+        self._task = None  # type: Optional[asyncio.Task[None]]
 
     @property
     def is_running(self) -> bool:
-        return self._timer_running
+        return self._task is not None
+
+    def cancel(self) -> None:
+        if self._task is not None:
+            self._task.cancel()
 
     async def _error(self, message: str):
         logger.error('timer %s: %s', self._name, message)
@@ -117,7 +122,7 @@ class Timer:
         dt = datetime.datetime.combine(date=date, time=hhmm)
         self._timer_stop = dt.timestamp()
 
-    async def execute(self, action: Action) -> None:
+    async def _execute(self, action: Action) -> None:
         assert self._timer_stop is not None
 
         if self._timer_running:
@@ -222,6 +227,11 @@ class Timer:
             await self._error("crashed.")
         finally:
             self._timer_running = False
+            self._task = None
+
+    async def execute(self, action: Action) -> None:
+        self._task = self._loop.create_task(self._execute(action))
+        await self._task
 
 
 class Executor:
@@ -266,33 +276,40 @@ class Executor:
         if 'timer' in action:
             timer_details = action['timer']
             timer_name = timer_details.get('name', 'default')
+            timer_replace = timer_details.get('replace', False)
 
             if (timer_name in self._timers and
                     self._timers[timer_name].is_running):
-                logger.info(
-                    "timer %s: Already running.", timer_name)
-                raise RuntimeError(
-                    "timer %s: already running" % timer_name)
-
-            else:
-                timer_action = dict(action)
-                del timer_action['timer']
-
-                self._timers[timer_name] = Timer(
-                    loop=self._loop,
-                    executor=self,
-                    locations=required_locations,
-                    name=timer_name,
-                )
-                if 'minutes' in timer_details:
-                    minutes = int(timer_details['minutes'])
-                    self._timers[timer_name].set_minutes(minutes)
-                elif 'end_time' in timer_details:
-                    end_time = timer_details['end_time']
-                    self._timers[timer_name].set_end_time(end_time)
+                if timer_replace:
+                    logger.info(
+                        "timer %s: Already running, cancelling old one.",
+                        timer_name)
+                    self._timers[timer_name].cancel()
                 else:
-                    assert False
-                await self._timers[timer_name].execute(timer_action)
+                    logger.info(
+                        "timer %s: Already running, not starting.",
+                        timer_name)
+                    raise RuntimeError(
+                        "timer %s: already running" % timer_name)
+
+            timer_action = dict(action)
+            del timer_action['timer']
+
+            self._timers[timer_name] = Timer(
+                loop=self._loop,
+                executor=self,
+                locations=required_locations,
+                name=timer_name,
+            )
+            if 'minutes' in timer_details:
+                minutes = int(timer_details['minutes'])
+                self._timers[timer_name].set_minutes(minutes)
+            elif 'end_time' in timer_details:
+                end_time = timer_details['end_time']
+                self._timers[timer_name].set_end_time(end_time)
+            else:
+                assert False
+            await self._timers[timer_name].execute(timer_action)
             return
 
         if 'template' in action and self._schedule is not None:

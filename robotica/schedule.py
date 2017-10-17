@@ -138,6 +138,7 @@ class Schedule:
                     'timer': {
                         'name': timer.get('name', 'default'),
                         'end_time': parsed_time.strftime("%H:%M"),
+                        'replace': True,
                     }
                 }]
                 result.append(TimeEntry(
