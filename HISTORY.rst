@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.36 (2017-10-17)
+-------------------
+
+Fixed
+~~~~~
+* Fixed bug generating action for timer update.
+
+
 0.1.35 (2017-10-17)
 -------------------
 

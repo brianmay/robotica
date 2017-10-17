@@ -105,7 +105,7 @@ class Timer:
         }
 
         if time_left % 5 == 0 and time_left > 0:
-            action['message'] = {'text': '%d minutes' % time_left}
+            new_action['message'] = {'text': '%d minutes' % time_left}
 
         new_action.update(action)
 
