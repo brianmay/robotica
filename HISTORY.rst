@@ -2,6 +2,20 @@
 History
 =======
 
+0.1.35 (2017-10-17)
+-------------------
+
+Fixed
+~~~~~
+* Fixed bugs associated with timer.
+
+Changed
+~~~~~~~
+* Timer uses current action for first event.
+* Ability to replace/cancel timers.
+* Add timer cancel notification.
+
+
 0.1.34 (2017-10-01)
 -------------------
 
