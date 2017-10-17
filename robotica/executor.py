@@ -277,10 +277,11 @@ class Executor:
             timer_details = action['timer']
             timer_name = timer_details.get('name', 'default')
             timer_replace = timer_details.get('replace', False)
+            timer_cancel = timer_details.get('cancel', False)
 
             if (timer_name in self._timers and
                     self._timers[timer_name].is_running):
-                if timer_replace:
+                if timer_replace or timer_cancel:
                     logger.info(
                         "timer %s: Already running, cancelling old one.",
                         timer_name)
@@ -291,6 +292,10 @@ class Executor:
                         timer_name)
                     raise RuntimeError(
                         "timer %s: already running" % timer_name)
+
+            # if request to cancel timer, don't start a new one
+            if timer_cancel:
+                return
 
             timer_action = dict(action)
             del timer_action['timer']
