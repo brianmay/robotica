@@ -43,17 +43,13 @@ class Timer:
             self._task.cancel()
 
     async def _cancel(self, message: str):
-
-        logger.error('timer %s: cancelled: %s', self._name, message)
+        logger.info('timer %s: cancelled: %s', self._name, message)
 
         action = {
             'timer_cancel': {
                 'name': self._name,
+                'message': message,
             },
-            'sound': {
-                'name': "cancelled"
-            },
-            'message': {'text': 'The timer %s %s' % (self._name, message)}
         }
 
         await self._executor.do_action(self._locations, action)
@@ -99,13 +95,7 @@ class Timer:
                 'epoch_minute': epoch_minute,
                 'epoch_finish': epoch_finish,
             },
-            'sound': {
-                'name': "beep"
-            },
         }
-
-        if time_left % 5 == 0 and time_left > 0:
-            new_action['message'] = {'text': '%d minutes' % time_left}
 
         new_action.update(action)
 

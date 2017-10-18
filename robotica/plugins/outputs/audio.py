@@ -75,6 +75,29 @@ class AudioOutput(Output):
                 location=location,
                 text=message['text'])
 
+        # Play timer status message.
+        if 'timer_status' in action:
+            timer = action['timer_status']
+            # name = timer['name']
+            time_left = timer['time_left']
+            # time_total = timer['time_total']
+            await self.play_sound(location, "beep")
+            if time_left % 5 == 0:
+                message_text = '%d minutes' % time_left
+                await self.say(
+                    location=location,
+                    text=message_text)
+
+        # Play timer cancelled message.
+        if 'timer_cancel' in action:
+            timer = action['timer_cancel']
+            # name = timer['name']
+            message_text = 'timer cancelled'
+            await self.play_sound(location, "cancelled")
+            await self.say(
+                location=location,
+                text=message_text)
+
         # Start requested music or resume if paused.
         if 'music' in action and action['music'] is not None:
             music = action['music']
