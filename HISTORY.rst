@@ -2,7 +2,7 @@
 History
 =======
 
-0.1.37 (2017-10-21)
+0.1.38 (2017-10-21)
 -------------------
 
 Changed
@@ -10,7 +10,7 @@ Changed
 * Simplify timer messages.
 
 
-0.1.36 (2017-10-17)
+0.1.37 (2017-10-17)
 -------------------
 
 Fixed
@@ -18,7 +18,7 @@ Fixed
 * Fixed bug generating action for timer update.
 
 
-0.1.35 (2017-10-17)
+0.1.36 (2017-10-17)
 -------------------
 
 Fixed
@@ -32,7 +32,7 @@ Changed
 * Add timer cancel notification.
 
 
-0.1.34 (2017-10-01)
+0.1.35 (2017-10-01)
 -------------------
 
 Changed
