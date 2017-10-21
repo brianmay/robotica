@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.39 (2017-10-22)
+-------------------
+
+Changed
+~~~~~~~
+* Refactor entire execution code. Because my imaginary friend said so.
+
+
 0.1.38 (2017-10-21)
 -------------------
 

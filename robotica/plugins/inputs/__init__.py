@@ -3,7 +3,7 @@ from typing import Optional
 
 from robotica.executor import Executor
 from robotica.plugins import Plugin
-from robotica.schedule import Schedule
+from robotica.schedule import Scheduler
 from robotica.types import Config
 
 
@@ -14,7 +14,7 @@ class Input(Plugin):
             loop: asyncio.AbstractEventLoop,
             config: Config,
             executor: Executor,
-            schedule: Optional[Schedule]) -> None:
+            scheduler: Optional[Scheduler]) -> None:
         super().__init__(name=name, loop=loop, config=config)
         self._executor = executor
-        self._schedule = schedule
+        self._scheduler = scheduler

@@ -10,7 +10,7 @@ from aiohttp import web
 from robotica import __version__ as version
 from robotica.executor import Executor
 from robotica.plugins.inputs import Input
-from robotica.schedule import Schedule
+from robotica.schedule import Scheduler
 from robotica.types import JsonType, Config
 
 logger = logging.getLogger(__name__)
@@ -25,14 +25,14 @@ class HttpInput(Input):
             loop: asyncio.AbstractEventLoop,
             config: Config,
             executor: Executor,
-            schedule: Optional[Schedule]) -> None:
+            scheduler: Optional[Scheduler]) -> None:
         # assert isinstance(name, str)
         super().__init__(
             name=name,
             loop=loop,
             config=config,
             executor=executor,
-            schedule=schedule,
+            scheduler=scheduler,
         )
         self._disabled = self._config['disabled']
         self._username = self._config['username']
@@ -63,8 +63,8 @@ class HttpInput(Input):
             parsed_date = datetime.date(year=year, month=month, day=day)
         except ValueError:
             raise web.HTTPBadRequest()
-        if self._schedule is not None:
-            schedule = self._schedule.get_schedule_for_date(parsed_date)
+        if self._scheduler is not None:
+            schedule = self._scheduler.get_schedule_for_date(parsed_date)
         else:
             schedule = []
         return [s.to_json() for s in schedule]

@@ -14,7 +14,7 @@ from robotica.executor import Executor
 from robotica.plugins import Plugin  # NOQA
 from robotica.plugins.inputs import Input
 from robotica.plugins.outputs import Output
-from robotica.schedule import Schedule
+from robotica.schedule import Scheduler
 
 logger = logging.getLogger('robotica')
 click_log.basic_config(logger)
@@ -48,6 +48,7 @@ def main(config: str, schedule: str) -> None:
     plugins = []  # type: List[Plugin]
 
     executor_obj = Executor(loop, config_dict['executor'])
+    executor_obj.start()
     for name in output_dict.keys():
         output_plugin_config = output_dict[name]
         output_plugin_class = _load_class(output_plugin_config['plugin'])
@@ -62,11 +63,15 @@ def main(config: str, schedule: str) -> None:
         plugins.append(output_plugin)
 
     if schedule.upper() == "NONE":
-        schedule_obj = None
+        scheduler_obj = None
     else:
-        schedule_obj = Schedule(schedule, executor_obj)
-        schedule_obj.start()
-        executor_obj.set_schedule(schedule_obj)
+        scheduler_obj = Scheduler(
+            loop=loop,
+            config=schedule,
+            executor=executor_obj,
+        )
+        scheduler_obj.start()
+        executor_obj.set_scheduler(scheduler_obj)
 
     for name in input_dict.keys():
         input_plugin_config = input_dict[name]
@@ -78,7 +83,7 @@ def main(config: str, schedule: str) -> None:
             loop=loop,
             config=input_plugin_config,
             executor=executor_obj,
-            schedule=schedule_obj,
+            scheduler=scheduler_obj,
         )
         input_plugin.start()
         plugins.append(input_plugin)
@@ -86,6 +91,7 @@ def main(config: str, schedule: str) -> None:
     try:
         loop.run_forever()
     finally:
+        executor_obj.stop()
         for plugin in reversed(plugins):
             plugin.stop()
         pending = asyncio.Task.all_tasks()

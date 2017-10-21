@@ -61,6 +61,10 @@ class AudioOutput(Output):
         else:
             paused = await self._execute(music_pause_cmd, {}) == 0
 
+        # Play timer sound.
+        if 'timer_status' in action:
+            await self.play_sound(location, "beep")
+
         # Play requested sound.
         if 'sound' in action and action['sound'] is not None:
             sound = action['sound']
@@ -78,10 +82,7 @@ class AudioOutput(Output):
         # Play timer status message.
         if 'timer_status' in action:
             timer = action['timer_status']
-            # name = timer['name']
             time_left = timer['time_left']
-            # time_total = timer['time_total']
-            await self.play_sound(location, "beep")
             if time_left % 5 == 0:
                 message_text = '%d minutes' % time_left
                 await self.say(

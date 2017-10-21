@@ -8,7 +8,7 @@ from hbmqtt.client import MQTTClient, ClientException, QOS_0
 
 from robotica.executor import Executor
 from robotica.plugins.inputs import Input
-from robotica.schedule import Schedule
+from robotica.schedule import Scheduler
 from robotica.types import Config, Action
 
 logger = logging.getLogger(__name__)
@@ -23,13 +23,13 @@ class MqttInput(Input):
             loop: asyncio.AbstractEventLoop,
             config: Config,
             executor: Executor,
-            schedule: Optional[Schedule]) -> None:
+            scheduler: Optional[Scheduler]) -> None:
         super().__init__(
             name=name,
             loop=loop,
             config=config,
             executor=executor,
-            schedule=schedule,
+            scheduler=scheduler,
         )
         self._disabled = self._config['disabled']
         self._broker_url = self._config['broker_url']
@@ -50,7 +50,7 @@ class MqttInput(Input):
                 pass
 
     def _get_topics(self) -> List[Tuple[str, int]]:
-        if self._schedule is None:
+        if self._scheduler is None:
             topics = [
                 ('/action/%s/' % location, QOS_0)
                 for location in self._locations
@@ -63,7 +63,7 @@ class MqttInput(Input):
         return topics
 
     async def _process_execute(self, data: JsonType) -> None:
-        if self._schedule is None:
+        if self._scheduler is None:
             return
 
         reply_topic = data.get('reply_topic', None)
@@ -85,7 +85,7 @@ class MqttInput(Input):
 
         try:
             await reply({'status': 'processing', 'server': server, })
-            await self._executor.do_actions(locations, actions)
+            await self._scheduler.do_actions(locations, actions)
             await reply({'status': 'success', 'server': server, })
         except asyncio.CancelledError:
             logger.warning('Task was cancelled.')
@@ -98,12 +98,12 @@ class MqttInput(Input):
         return
 
     async def _process_schedule(self, data: JsonType) -> None:
-        if self._schedule is not None:
-            await self._schedule.set_schedule(data)
-            self._schedule.save_schedule()
+        if self._scheduler is not None:
+            await self._scheduler.set_schedule(data)
+            self._scheduler.save_schedule()
 
     async def _process_action(self, location: str, action: Action) -> None:
-        if self._schedule is None:
+        if self._scheduler is None:
             await self._executor.do_action({location}, action)
 
     async def _process(self, topic: str, data: JsonType) -> None:
