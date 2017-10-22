@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.40 (2017-10-22)
+-------------------
+
+Fixed
+~~~~~
+* Make sure we process timer status messages.
+
+
 0.1.39 (2017-10-22)
 -------------------
 

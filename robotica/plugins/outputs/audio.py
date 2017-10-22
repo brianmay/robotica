@@ -47,6 +47,12 @@ class AudioOutput(Output):
         if 'music' in action:
             return True
 
+        if 'timer_status' in action:
+            return True
+
+        if 'timer_cancel' in action:
+            return True
+
         return False
 
     async def execute(self, location: str, action: Action) -> None:
