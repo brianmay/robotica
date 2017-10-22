@@ -194,9 +194,6 @@ class Timer:
                     "timer %s: %.1f to go to.",
                     self._name, twait)
 
-                if twait <= 0:
-                    break
-
                 # time: minute
                 current_time = time.time()
                 minutes_left = int(
@@ -212,6 +209,9 @@ class Timer:
                     epoch_finish=timer_stop,
                     action=action)
                 action = {}
+
+                if twait <= 0:
+                    break
 
                 # calculate absolute times
                 current_time = time.time()

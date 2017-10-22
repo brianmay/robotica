@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.41 (2017-10-22)
+-------------------
+
+Fixed
+~~~~~
+* Make sure send 0 minute timer notification after timer finishes.
+
+
 0.1.40 (2017-10-22)
 -------------------
 

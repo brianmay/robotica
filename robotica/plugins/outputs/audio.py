@@ -89,7 +89,7 @@ class AudioOutput(Output):
         if 'timer_status' in action:
             timer = action['timer_status']
             time_left = timer['time_left']
-            if time_left % 5 == 0:
+            if time_left > 0 and time_left % 5 == 0:
                 message_text = '%d minutes' % time_left
                 await self.say(
                     location=location,
