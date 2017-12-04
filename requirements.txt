@@ -4,5 +4,5 @@ click-log==0.2.1
 aiolifxc==1.0.0
 PyYAML==3.12
 python-dateutil==2.6.1
-aiohttp==2.3.5
+aiohttp==2.3.6
 hbmqtt==0.9.1
