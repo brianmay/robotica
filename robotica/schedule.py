@@ -78,7 +78,7 @@ class Timer:
         if self._task is not None:
             self._task.cancel()
 
-    async def _cancel(self, message: str):
+    async def _cancel(self, message: str) -> None:
         logger.info('timer %s: cancelled: %s', self._name, message)
 
         action = {
@@ -95,7 +95,7 @@ class Timer:
             time_left: int, time_total: int,
             epoch_minute: float,
             epoch_finish: float,
-            action: Action):
+            action: Action) -> None:
         logger.info(
             "timer warn %s: time left %d, time total %s",
             self._name, time_left, time_total)
@@ -118,7 +118,7 @@ class Timer:
             time_left: int, time_total: int,
             epoch_minute: float,
             epoch_finish: float,
-            action: Action):
+            action: Action) -> None:
         logger.info(
             "timer %s: time left %d, time total %s",
             self._name, time_left, time_total)
@@ -137,7 +137,7 @@ class Timer:
 
         await self._executor.do_action(self._locations, new_action)
 
-    async def _sleep_until_time(self, new_time: float):
+    async def _sleep_until_time(self, new_time: float) -> None:
         twait = max(new_time - time.time(), 0)
         logger.debug(
             "timer %s: waiting %.1f seconds.",
@@ -282,7 +282,7 @@ class Scheduler:
         self._scheduler = None  # type: Optional[BaseScheduler]
         self._timers = {}  # type: Dict[str, Timer]
 
-    async def set_schedule(self, schedule: Dict):
+    async def set_schedule(self, schedule: Dict) -> None:
         self._schedule = schedule
         assert self._scheduler is not None
         await self._prepare_for_day(self._scheduler)
@@ -539,7 +539,7 @@ class Scheduler:
         result = sorted(result, key=lambda e: e.time)
         return result
 
-    async def do_actions(self, locations: Set[str], actions: List[Action]):
+    async def do_actions(self, locations: Set[str], actions: List[Action]) -> None:
         if 'timer' in actions[0]:
             await self.set_timer(locations, actions)
         elif 'template' in actions[0]:
@@ -585,7 +585,7 @@ class Scheduler:
         )
         self._add_list_to_scheduler(schedule)
 
-    async def set_timer(self, locations: Set[str], actions: List[Action]):
+    async def set_timer(self, locations: Set[str], actions: List[Action]) -> None:
         assert 'timer' in actions[0]
         action = actions[0]
 
@@ -632,7 +632,7 @@ class Scheduler:
         await timers[timer_name].execute(timer_action)
         await self._executor.do_actions(locations, actions[1:])
 
-    async def set_template(self, locations: Set[str], actions: List[Action]):
+    async def set_template(self, locations: Set[str], actions: List[Action]) -> None:
         assert 'template' in actions[0]
         template_details = actions[0]['template']
         template_name = template_details['name']

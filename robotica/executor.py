@@ -68,7 +68,7 @@ class Executor:
             loop=self._loop
         )
 
-    async def _process_queue(self, location: str):
+    async def _process_queue(self, location: str) -> None:
         assert location in self._queues
         while True:
             action = await self._queues[location].get()
