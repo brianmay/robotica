@@ -26,7 +26,10 @@ class MqttOutput(Output):
         self._disabled = self._config['disabled']
         self._broker_url = self._config['broker_url']
         self._locations = self._config.get('locations', {}) or {}
-        self._client = MQTTClient()
+        self._client = MQTTClient(config={
+            'reconnect_max_interval': 600,
+            'reconnect_retries': 100,
+        })
 
     def start(self) -> None:
         if not self._disabled:
