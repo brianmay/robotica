@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.42 (2018-01-14)
+-------------------
+
+Fixed
+~~~~~
+* Increase number of MQTT reconnect attempts.
+
+
 0.1.41 (2017-10-22)
 -------------------
 
