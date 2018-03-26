@@ -3,6 +3,6 @@ click==6.7
 click-log==0.2.1
 aiolifxc==1.0.0
 PyYAML==3.12
-python-dateutil==2.6.1
+python-dateutil==2.7.2
 aiohttp==2.3.8
 hbmqtt==0.9.2
