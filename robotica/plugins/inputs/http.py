@@ -85,7 +85,9 @@ class HttpInput(Input):
             self._handler = self._app.make_handler()
             f = self._loop.create_server(self._handler, '0.0.0.0', 8080)
             self._srv = self._loop.run_until_complete(f)
-            logger.info('serving on %s', self._srv.sockets[0].getsockname())
+            sockets = self._srv.sockets
+            assert sockets is not None
+            logger.info('serving on %s', sockets[0].getsockname())
 
     def stop(self) -> None:
         if not self._disabled:
